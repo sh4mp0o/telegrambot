@@ -39,13 +39,21 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         return;
 
     var chatId = message.Chat.Id;
+    var username = message.Chat.Username;
 
-    Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+    Console.WriteLine($"Received a '{messageText}' message in chat {username}  {chatId}.");
+
+    Random rnd = new Random();
 
     // Echo received message text
     Message sentMessage = await botClient.SendTextMessageAsync(
         chatId: chatId,
-        text: "You said:\n" + messageText,
+        text: $"i choose {rnd.Next(1,6)}",
+        cancellationToken: cancellationToken);
+
+
+    Message sentStickerMessage = await botClient.SendDiceAsync(
+        chatId: chatId,
         cancellationToken: cancellationToken);
 }
 
