@@ -3,6 +3,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 var botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc");
 
@@ -43,18 +44,22 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
     Console.WriteLine($"Received a '{messageText}' message in chat {username}  {chatId}.");
 
+    #region dice
     Random rnd = new Random();
 
-    // Echo received message text
-    Message sentMessage = await botClient.SendTextMessageAsync(
-        chatId: chatId,
-        text: $"i choose {rnd.Next(1,6)}",
-        cancellationToken: cancellationToken);
+    //// Echo received message text
+    //Message sentMessage = await botClient.SendTextMessageAsync(
+    //    chatId: chatId,
+    //    text: $"i choose {rnd.Next(1,6)}",
+    //    cancellationToken: cancellationToken);
 
 
-    Message sentStickerMessage = await botClient.SendDiceAsync(
-        chatId: chatId,
-        cancellationToken: cancellationToken);
+    //Message sentStickerMessage = await botClient.SendDiceAsync(
+    //    chatId: chatId,
+    //    cancellationToken: cancellationToken);
+    #endregion
+
+    await JustResponse(botClient, cancellationToken, message);
 }
 
 Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -68,4 +73,34 @@ Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, 
 
     Console.WriteLine(ErrorMessage);
     return Task.CompletedTask;
+}
+
+async Task JustResponse(ITelegramBotClient botClient, CancellationToken cancellationToken, Message? message)
+{
+    InlineKeyboardMarkup startKeyBoard = new(new[]
+    {
+        // first row
+        new []
+        {
+            InlineKeyboardButton.WithCallbackData(text: "Записаться!👀", callbackData: "11"),
+        },
+        // second row
+        new []
+        {
+            InlineKeyboardButton.WithCallbackData(text: "Контакты📱", callbackData: "21"),
+        },
+        // third row
+        new []
+        {
+            InlineKeyboardButton.WithCallbackData(text: "Отзывы✨", callbackData: "21"),
+        },
+    });
+
+    var chatId = message.Chat.Id;
+
+    Message sentMessage = await botClient.SendTextMessageAsync(
+        chatId: chatId,
+        text: "Привет, это первый Ярославский бот по записи на маникюр в телеграме!",
+        replyMarkup: startKeyBoard,
+        cancellationToken: cancellationToken);
 }
