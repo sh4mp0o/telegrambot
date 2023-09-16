@@ -3,7 +3,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace tgbot
 {
@@ -24,13 +24,14 @@ namespace tgbot
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
                 {
                     UpdateType.Message, // Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
+                    UpdateType.CallbackQuery // Inline кнопки
                 },
                 // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
                 // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
-                ThrowPendingUpdates = true,
+                ThrowPendingUpdates = false,
             };
 
-            var cts = new CancellationTokenSource();
+            using var cts = new CancellationTokenSource();
 
             // UpdateHander - обработчик приходящих Update`ов
             // ErrorHandler - обработчик ошибок, связанных с Bot API
@@ -62,14 +63,109 @@ namespace tgbot
 
                             // Chat - содержит всю информацию о чате
                             var chat = message.Chat;
-                            await botClient.SendTextMessageAsync(
-                            chat.Id,
-                            message.Text, // отправляем то, что написал пользователь
-                            replyToMessageId: message.MessageId // по желанию можем поставить этот параметр, отвечающий за "ответ" на сообщение
-                            );
+
+                            switch (message.Type)
+                            {
+                                // Тут понятно, текстовый тип
+                                case MessageType.Text:
+                                    if (message.Text == "/start")
+                                    {
+                                        // Тут создаем нашу клавиатуру
+                                        var inlineKeyboard = new InlineKeyboardMarkup(
+                                            new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
+                                            {
+                                                    // Каждый новый массив - это дополнительные строки,
+                                                    // а каждая дополнительная строка (кнопка) в массиве - это добавление ряда
+
+                                                    new InlineKeyboardButton[] // тут создаем массив кнопок
+                                                    {
+                                                        InlineKeyboardButton.WithCallbackData("Записаться!🗓", "button1"),
+                                                    },
+                                                    new InlineKeyboardButton[]
+                                                    {
+                                                        InlineKeyboardButton.WithCallbackData("Контакты📱", "button2"),
+                                                    },
+                                                    new InlineKeyboardButton[]
+                                                    {
+                                                        InlineKeyboardButton.WithCallbackData("Отзывы📝", "button3"),
+                                                    },
+                                            });
+
+                                        await botClient.SendTextMessageAsync(
+                                            chat.Id,
+                                            "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
+                                            replyMarkup: inlineKeyboard,
+                                            cancellationToken: cancellationToken); // Все клавиатуры передаются в параметр replyMarkup
+
+                                        return;
+                                    }
+                                    return;
+                                default: return;
+                            }
+                        }
+                    case UpdateType.CallbackQuery:
+                        {
+                            // Переменная, которая будет содержать в себе всю информацию о кнопке, которую нажали
+                            var callbackQuery = update.CallbackQuery;
+
+                            // Аналогично и с Message мы можем получить информацию о чате, о пользователе и т.д.
+                            var user = callbackQuery.From;
+
+                            // Выводим на экран нажатие кнопки
+                            Console.WriteLine($"{user.FirstName} ({user.Id}) нажал на кнопку: {callbackQuery.Data}");
+
+                            // Вот тут нужно уже быть немножко внимательным и не путаться!
+                            // Мы пишем не callbackQuery.Chat , а callbackQuery.Message.Chat , так как
+                            // кнопка привязана к сообщению, то мы берем информацию от сообщения.
+                            var chat = callbackQuery.Message.Chat;
+
+                            // Добавляем блок switch для проверки кнопок
+                            switch (callbackQuery.Data)
+                            {
+                                // Data - это придуманный нами id кнопки, мы его указывали в параметре
+                                // callbackData при создании кнопок. У меня это button1, button2 и button3
+
+                                case "button1":
+                                    {
+                                        // В этом типе клавиатуры обязательно нужно использовать следующий метод
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
+
+                                        await botClient.SendTextMessageAsync(
+                                            chat.Id,
+                                            $"Вы нажали на {callbackQuery.Data}",
+                                            cancellationToken:cancellationToken);
+                                        return;
+                                    }
+
+                                case "button2":
+                                    {
+                                        // А здесь мы добавляем наш сообственный текст, который заменит слово "загрузка", когда мы нажмем на кнопку
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тут может быть ваш текст!");
+
+                                        await botClient.SendTextMessageAsync(
+                                            chat.Id,
+                                            $"Вы нажали на {callbackQuery.Data}",
+                                            cancellationToken: cancellationToken);
+                                        return;
+                                    }
+
+                                case "button3":
+                                    {
+                                        // А тут мы добавили еще showAlert, чтобы отобразить пользователю полноценное окно
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "А это полноэкранный текст!", showAlert: true);
+
+                                        await botClient.SendTextMessageAsync(
+                                            chat.Id,
+                                            $"Вы нажали на {callbackQuery.Data}",
+                                            cancellationToken:cancellationToken);
+                                        return;
+                                    }
+                            }
 
                             return;
                         }
+                    default: return;
                 }
             }
             catch (Exception ex)
