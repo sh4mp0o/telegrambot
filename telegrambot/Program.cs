@@ -105,6 +105,8 @@ namespace tgbot
                         }
                     case UpdateType.CallbackQuery:
                         {
+                            var message = update.Message;
+
                             // Переменная, которая будет содержать в себе всю информацию о кнопке, которую нажали
                             var callbackQuery = update.CallbackQuery;
 
@@ -127,25 +129,36 @@ namespace tgbot
 
                                 case "button1":
                                     {
-                                        // В этом типе клавиатуры обязательно нужно использовать следующий метод
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                        // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
+                                       //Матвей, тут твоя работа
 
-                                        await botClient.SendTextMessageAsync(
-                                            chat.Id,
-                                            $"Вы нажали на {callbackQuery.Data}",
-                                            cancellationToken:cancellationToken);
-                                        return;
+
+                                       // В этом типе клавиатуры обязательно нужно использовать следующий метод
+                                       //await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                       // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
+
+                                       //await botClient.SendTextMessageAsync(
+                                       //    chat.Id,
+                                       //    $"Вы нажали на {callbackQuery.Data}",
+                                       //    cancellationToken: cancellationToken);
+                                       return;
                                     }
 
                                 case "button2":
                                     {
+                                        var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton[]
+                                        {
+                                            InlineKeyboardButton.WithUrl("*клик*","https://vk.com/your_nails_yaroslavl"),
+                                        });
+
                                         // А здесь мы добавляем наш сообственный текст, который заменит слово "загрузка", когда мы нажмем на кнопку
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тут может быть ваш текст!");
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        await botClient.SendContactAsync(chat.Id, "+7 930 117 5831", "Виталия",cancellationToken:cancellationToken);
 
                                         await botClient.SendTextMessageAsync(
                                             chat.Id,
-                                            $"Вы нажали на {callbackQuery.Data}",
+                                            $"Тут можно ознакомиться с моими работами!",
+                                            replyMarkup: inlineKeyboard,
                                             cancellationToken: cancellationToken);
                                         return;
                                     }
@@ -153,12 +166,8 @@ namespace tgbot
                                 case "button3":
                                     {
                                         // А тут мы добавили еще showAlert, чтобы отобразить пользователю полноценное окно
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "А это полноэкранный текст!", showAlert: true);
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тут будет ссылка на отзывы.", showAlert: true);
 
-                                        await botClient.SendTextMessageAsync(
-                                            chat.Id,
-                                            $"Вы нажали на {callbackQuery.Data}",
-                                            cancellationToken:cancellationToken);
                                         return;
                                     }
                             }
