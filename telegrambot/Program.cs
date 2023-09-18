@@ -45,30 +45,6 @@ namespace tgbot
         }
         private static async Task UpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            // Главное меню
-            var mainMenu = new InlineKeyboardMarkup(
-                new List<InlineKeyboardButton[]>()
-                {
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Записаться!🗓", "button1"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Контакты📱", "button2"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithUrl("Отзывы📝", "https://vk.com/your_nails_yaroslavl"),
-                    },
-                });
-
-
-            var backButton = new InlineKeyboardMarkup(
-                new List<InlineKeyboardButton[]>()
-                {
-                    new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backButton")}
-                });
 
             // Обязательно ставим блок try-catch, чтобы наш бот не "падал" в случае каких-либо ошибок
             try
@@ -99,7 +75,7 @@ namespace tgbot
                                         await botClient.SendTextMessageAsync(
                                             chat.Id,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                                            replyMarkup: mainMenu,
+                                            replyMarkup: Keyboards.mainMenu,
                                             cancellationToken: cancellationToken); // Все клавиатуры передаются в параметр replyMarkup
 
                                         return;
@@ -130,78 +106,64 @@ namespace tgbot
                                 // Data - это придуманный нами id кнопки, мы его указывали в параметре
                                 // callbackData при создании кнопок. У меня это button1, button2 и button3
 
-                                case "button1":
+                                case "recButton":
                                     {
                                         //Матвей, тут твоя работа
                                         //Console.WriteLine(callbackQuery.Message.);
+
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                        Recording.RecordingDay(botClient,chat, cancellationToken);
+
+                                        Recording.RecordingDay(botClient, chat, cancellationToken);
+
                                         return;
                                     }
-
-                                case "button2":
+                                case "contactButton":
                                     {
                                         //await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "smth", replyMarkup: inlineKeyboard, cancellationToken:cancellationToken);
 
-                                        // А здесь мы добавляем наш сообственный текст, который заменит слово "загрузка", когда мы нажмем на кнопку
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
 
                                         await botClient.SendContactAsync(chat.Id, "+7 930 117 5831", "Виталия", cancellationToken: cancellationToken);
 
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "↓ Мой телеграм и номер телефона ↓", replyMarkup: backButton, cancellationToken: cancellationToken);
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "↓ Мой телеграм и номер телефона ↓", replyMarkup: Keyboards.backButton, cancellationToken: cancellationToken);
 
                                         return;
                                     }
-
-                                case "button3":
+                                case "day":
                                     {
-                                        // А тут мы добавили еще showAlert, чтобы отобразить пользователю полноценное окно
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тут будет ссылка на отзывы.", showAlert: true, cancellationToken: cancellationToken);
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        Recording.dateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
+
+                                        Recording.RecordingTime(botClient, chat, cancellationToken);
 
                                         return;
                                     }
                                 case "backButton":
                                     {
                                         //await botClient.DeleteMessageAsync(chat.Id, callbackQuery.Message.MessageId + 1, cancellationToken: cancellationToken);
-                                        
-                                        return;
-                                    }
-                                case "button0":
-                                    {
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                        Recording.dateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
-                                        Recording.RecordingTime(botClient, chat, cancellationToken);                                       
-                                        return;
-                                    }
-                                case "button5":
-                                    {
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                        Recording.time = callbackQuery.Data.Split().Last();
-                                        var inlineKeyboard3 = new InlineKeyboardMarkup(
-                                            new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
-                                            {
-                                            // Каждый новый массив - это дополнительные строки,
-                                            // а каждая дополнительная строка (кнопка) в массиве - это добавление ряда
 
-                                            new InlineKeyboardButton[] // тут создаем массив кнопок
-                                            {
-                                                InlineKeyboardButton.WithCallbackData("Да", "button6 1"),
-                                                InlineKeyboardButton.WithCallbackData("Нет,назад", "button4"),
-                                            },
-                                            });
+                                        return;
+                                    }
+                                case "buttonN": //? alternative of backbutton from recording.cs
+                                    {
+                                        return;
+                                    }
+                                case "time":
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        Recording.time = callbackQuery.Data.Split().Last();
+
                                         await botClient.SendTextMessageAsync(
                                             chat.Id,
                                             $"Вы хотите записаться на {Recording.dateTime.Day} в {Recording.time} " +
                                             "Все верно?",
-                                            replyMarkup: inlineKeyboard3,
+                                            replyMarkup: Keyboards.confirmKeyboard,
                                             cancellationToken: cancellationToken);
                                         return;
                                     }
                                 case "button6":
-                                    {
-                                        return;
-                                    }
-                                case "button4":
                                     {
                                         return;
                                     }
