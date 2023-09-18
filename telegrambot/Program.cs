@@ -4,6 +4,7 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using telegrambot;
 
 namespace tgbot
 {
@@ -122,25 +123,58 @@ namespace tgbot
                             var chat = callbackQuery.Message.Chat;
 
                             // Добавляем блок switch для проверки кнопок
-                            switch (callbackQuery.Data)
+                            switch (callbackQuery.Data.Split().First())
                             {
                                 // Data - это придуманный нами id кнопки, мы его указывали в параметре
                                 // callbackData при создании кнопок. У меня это button1, button2 и button3
 
                                 case "button1":
                                     {
-                                       //Матвей, тут твоя работа
+                                        //Матвей, тут твоя работа
+                                        //Console.WriteLine(callbackQuery.Message.);
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        Recording.RecordingDay(botClient,chat, cancellationToken);
+                                        //DateTime today = DateTime.Now;
+                                        //var inlineKeyboard1 = new InlineKeyboardMarkup(
+                                        //    new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
+                                        //    {
+                                        //    // Каждый новый массив - это дополнительные строки,
+                                        //    // а каждая дополнительная строка (кнопка) в массиве - это добавление ряда
 
+                                        //    new InlineKeyboardButton[] // тут создаем массив кнопок
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(1).Day+"."+today.Month, "button0 1"),
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(2).Day+"."+today.Month, "button0 2"),
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(3).Day+"."+today.Month, "button0 3"),
+                                        //    },
+                                        //    new InlineKeyboardButton[]
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(4).Day+"."+today.Month, "button0 4"),
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(5).Day+"."+today.Month, "button0 5"),
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(6).Day+"."+today.Month, "button0 6"),
+                                        //        InlineKeyboardButton.WithCallbackData(today.AddDays(7).Day+"."+today.Month, "button0 7"),
+                                        //    },
+                                        //    new InlineKeyboardButton[]
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData("Назад","button4")
+                                        //    }
+                                        //    });
+                                        //await botClient.SendTextMessageAsync(
+                                        //    chat.Id,
+                                        //    $"Выберите день для маникюра!",
+                                        //    replyMarkup: inlineKeyboard1,
+                                        //    cancellationToken: cancellationToken);
+                                        //Client client = new Client();
+                                        //Recording.RecordingDay();
+                                        // В этом типе клавиатуры обязательно нужно использовать следующий метод
+                                        //await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
 
-                                       // В этом типе клавиатуры обязательно нужно использовать следующий метод
-                                       //await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                                       // Для того, чтобы отправить телеграмму запрос, что мы нажали на кнопку
-
-                                       //await botClient.SendTextMessageAsync(
-                                       //    chat.Id,
-                                       //    $"Вы нажали на {callbackQuery.Data}",
-                                       //    cancellationToken: cancellationToken);
-                                       return;
+                                        //await botClient.SendTextMessageAsync(
+                                        //    chat.Id,
+                                        //    $"Вы нажали на {callbackQuery.Data}",
+                                        //    cancellationToken: cancellationToken);
+                                        return;
                                     }
 
                                 case "button2":
@@ -168,6 +202,73 @@ namespace tgbot
                                         // А тут мы добавили еще showAlert, чтобы отобразить пользователю полноценное окно
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тут будет ссылка на отзывы.", showAlert: true);
 
+                                        return;
+                                    }
+                                case "button0":
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        Recording.dateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
+                                        Recording.RecordingTime(botClient, chat, cancellationToken);
+                                        //var inlineKeyboard2 = new InlineKeyboardMarkup(
+                                        //    new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
+                                        //    {
+                                        //    // Каждый новый массив - это дополнительные строки,
+                                        //    // а каждая дополнительная строка (кнопка) в массиве - это добавление ряда
+
+                                        //    new InlineKeyboardButton[] // тут создаем массив кнопок
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData("14:00-16:00", "button5 1"),
+                                        //    },
+                                        //    new InlineKeyboardButton[]
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData("16:00-18:00", "button5 2"),
+                                        //    },
+                                        //    new InlineKeyboardButton[]
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData("18:00-20:00", "button5 3"),
+                                        //    },
+                                        //    new InlineKeyboardButton[]
+                                        //    {
+                                        //        InlineKeyboardButton.WithCallbackData("Назад","button4")
+                                        //    }
+                                        //    });
+                                        //await botClient.SendTextMessageAsync(
+                                        //    chat.Id,
+                                        //    $"Выберите время для маникюра!",
+                                        //    replyMarkup: inlineKeyboard2,
+                                        //    cancellationToken: cancellationToken);
+                                        return;
+                                    }
+                                case "button5":
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        Recording.time = callbackQuery.Data.Split().Last();
+                                        var inlineKeyboard3 = new InlineKeyboardMarkup(
+                                            new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
+                                            {
+                                            // Каждый новый массив - это дополнительные строки,
+                                            // а каждая дополнительная строка (кнопка) в массиве - это добавление ряда
+
+                                            new InlineKeyboardButton[] // тут создаем массив кнопок
+                                            {
+                                                InlineKeyboardButton.WithCallbackData("Да", "button6 1"),
+                                                InlineKeyboardButton.WithCallbackData("Нет,назад", "button4"),
+                                            },
+                                            });
+                                        await botClient.SendTextMessageAsync(
+                                            chat.Id,
+                                            $"Вы хотите записаться на {Recording.dateTime.Day} в {Recording.time} " +
+                                            "Все верно?",
+                                            replyMarkup: inlineKeyboard3,
+                                            cancellationToken: cancellationToken);
+                                        return;
+                                    }
+                                case "button6":
+                                    {
+                                        return;
+                                    }
+                                case "button4":
+                                    {
                                         return;
                                     }
                             }
