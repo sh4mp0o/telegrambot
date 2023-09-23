@@ -8,68 +8,37 @@ namespace telegrambot
     {
         public static DateTime dateTime;
         public static string time;
-        public static async void RecordingDay(ITelegramBotClient botClient, Chat chat, CancellationToken cancellationToken)
+        public static async void RecordingDay(ITelegramBotClient botClient, Chat chat, CancellationToken cancellationToken, CallbackQuery callbackQuery)
         {
-            DateTime today = DateTime.Now;
-            var daysKeyboard = new InlineKeyboardMarkup(
-                new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
-                {
-                    new InlineKeyboardButton[] // тут создаем массив кнопок
-                    {
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(1).Day+"."+today.Month, "day 1"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(2).Day+"."+today.Month, "day 2"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(3).Day+"."+today.Month, "day 3"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(4).Day+"."+today.Month, "day 4"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(5).Day+"."+today.Month, "day 5"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(6).Day+"."+today.Month, "day 6"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(7).Day+"."+today.Month, "day 7"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Назад ◀️","backButton") //либо альтернатива: писать для каждого уровня свою кнопку назад
-                    }
-                });
-
-            await botClient.SendTextMessageAsync(
+            try
+            {
+                await botClient.EditMessageTextAsync(
                 chat.Id,
+                callbackQuery.Message.MessageId,
                 $"Выберите дату 💅🏼",
-                replyMarkup: daysKeyboard,
+                replyMarkup: Keyboards.daysKeyboard,
                 cancellationToken: cancellationToken);
-
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
-        public static async void RecordingTime(ITelegramBotClient botClient, Chat chat, CancellationToken cancellationToken)
+        public static async void RecordingTime(ITelegramBotClient botClient, Chat chat, CancellationToken cancellationToken, CallbackQuery callbackQuery)
         {
-            var timeKeyboard = new InlineKeyboardMarkup(
-                new List<InlineKeyboardButton[]>() // здесь создаем лист (массив), который содрежит в себе массив из класса кнопок
-                {
-                    new InlineKeyboardButton[] // тут создаем массив кнопок
-                    {
-                        InlineKeyboardButton.WithCallbackData("14:00-16:00", "time 14:00-16:00"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("16:00-18:00", "time 16:00-18:00"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("18:00-20:00", "time 18:00-20:00"),
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Назад ◀️","backButton") //либо альтернатива: писать для каждого уровня свою кнопку назад
-                    }
-                });
-
-            await botClient.SendTextMessageAsync(
+            try
+            {
+                await botClient.EditMessageTextAsync(
                 chat.Id,
+                callbackQuery.Message.MessageId,
                 $"Выберите время💅🏼",
-                replyMarkup: timeKeyboard,
+                replyMarkup: Keyboards.timeKeyboard,
                 cancellationToken: cancellationToken);
-
-            return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
 }

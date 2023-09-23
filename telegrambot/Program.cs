@@ -45,6 +45,9 @@ namespace tgbot
         }
         private static async Task UpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+            //TODO попробовать описать логичнее удаление предыдущего сообщения, иначе могут возникнуть коллизии после первой итерации, через botMessage.Id
+            //TODO реализовать более унифицированный и лакончиный код
+
 
             // Обязательно ставим блок try-catch, чтобы наш бот не "падал" в случае каких-либо ошибок
             try
@@ -113,7 +116,7 @@ namespace tgbot
 
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
-                                        Recording.RecordingDay(botClient, chat, cancellationToken);
+                                        Recording.RecordingDay(botClient, chat, cancellationToken, callbackQuery);
 
                                         return;
                                     }
@@ -125,7 +128,7 @@ namespace tgbot
 
                                         await botClient.SendContactAsync(chat.Id, "+7 930 117 5831", "Виталия", cancellationToken: cancellationToken);
 
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "↓ Мой телеграм и номер телефона ↓", replyMarkup: Keyboards.backButton, cancellationToken: cancellationToken);
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "↓ Мой телеграм и номер телефона ↓", replyMarkup: Keyboards.backContacts, cancellationToken: cancellationToken);
 
                                         return;
                                     }
@@ -135,18 +138,56 @@ namespace tgbot
 
                                         Recording.dateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
 
-                                        Recording.RecordingTime(botClient, chat, cancellationToken);
+                                        Recording.RecordingTime(botClient, chat, cancellationToken, callbackQuery);
 
                                         return;
                                     }
-                                case "backButton":
+                                case "backContacts":
                                     {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        await botClient.DeleteMessageAsync(chat.Id, callbackQuery.Message.MessageId + 1, cancellationToken: cancellationToken);
+
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                            "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
+                                            replyMarkup: Keyboards.mainMenu,
+                                            cancellationToken: cancellationToken);
+
+                                        return;
+                                    }
+                                case "backDays": //? alternative of backbutton from recording.cs
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
                                         //await botClient.DeleteMessageAsync(chat.Id, callbackQuery.Message.MessageId + 1, cancellationToken: cancellationToken);
 
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                            "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
+                                            replyMarkup: Keyboards.mainMenu,
+                                            cancellationToken: cancellationToken);
+
                                         return;
                                     }
-                                case "buttonN": //? alternative of backbutton from recording.cs
+                                case "backTime":
                                     {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                            $"Выберите дату 💅🏼",
+                                            replyMarkup: Keyboards.daysKeyboard,
+                                            cancellationToken: cancellationToken);
+
+                                        return;
+                                    }
+                                case "backConfirm":
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                            $"Выберите время💅🏼",
+                                            replyMarkup: Keyboards.timeKeyboard,
+                                            cancellationToken: cancellationToken);
+
                                         return;
                                     }
                                 case "time":
@@ -155,16 +196,20 @@ namespace tgbot
 
                                         Recording.time = callbackQuery.Data.Split().Last();
 
-                                        await botClient.SendTextMessageAsync(
+                                        await botClient.EditMessageTextAsync(
                                             chat.Id,
+                                            callbackQuery.Message.MessageId,
                                             $"Вы хотите записаться на {Recording.dateTime.Day} в {Recording.time} " +
                                             "Все верно?",
                                             replyMarkup: Keyboards.confirmKeyboard,
                                             cancellationToken: cancellationToken);
+
                                         return;
                                     }
                                 case "button6":
                                     {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
                                         return;
                                     }
                             }
