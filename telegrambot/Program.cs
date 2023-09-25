@@ -4,7 +4,10 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using System.Text.Json;
 using telegrambot;
+using System.Runtime.Serialization.Json;
+using System.Collections.Generic;
 
 namespace tgbot
 {
@@ -15,10 +18,12 @@ namespace tgbot
 
         // Это объект с настройками работы бота. Здесь мы будем указывать, какие типы Update мы будем получать, Timeout бота и так далее.
         private static ReceiverOptions? _receiverOptions;
+        private static List<Client> _clients;
+
 
         static async Task Main()
         {
-
+            _clients = new List<Client>();
             _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
@@ -113,10 +118,16 @@ namespace tgbot
                                     {
                                         //Матвей, тут твоя работа
                                         //Console.WriteLine(callbackQuery.Message.);
-
+                                        Client client = new() {Id = callbackQuery.From.Id};
+                                        _clients.Add(client);
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
-                                        Recording.RecordingDay(botClient, chat, cancellationToken, callbackQuery);
+                                        await botClient.EditMessageTextAsync(
+                                              chat.Id,
+                                              callbackQuery.Message.MessageId,
+                                              $"Выберите дату 💅🏼",
+                                              replyMarkup: Keyboards.daysKeyboard,
+                                              cancellationToken: cancellationToken);
 
                                         return;
                                     }
@@ -136,9 +147,14 @@ namespace tgbot
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
-                                        Recording.dateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
 
-                                        Recording.RecordingTime(botClient, chat, cancellationToken, callbackQuery);
+                                        await botClient.EditMessageTextAsync(
+                                              chat.Id,
+                                              callbackQuery.Message.MessageId,
+                                              $"Выберите время💅🏼",
+                                              replyMarkup: Keyboards.timeKeyboard,
+                                              cancellationToken: cancellationToken);
 
                                         return;
                                     }
@@ -160,7 +176,7 @@ namespace tgbot
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
                                         //await botClient.DeleteMessageAsync(chat.Id, callbackQuery.Message.MessageId + 1, cancellationToken: cancellationToken);
-
+                                        _clients.Remove(_clients.Find(x => x.Id == callbackQuery.From.Id));
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
                                             replyMarkup: Keyboards.mainMenu,
@@ -172,6 +188,7 @@ namespace tgbot
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Today;
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите дату 💅🏼",
                                             replyMarkup: Keyboards.daysKeyboard,
@@ -183,6 +200,7 @@ namespace tgbot
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите время💅🏼",
                                             replyMarkup: Keyboards.timeKeyboard,
@@ -194,12 +212,20 @@ namespace tgbot
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
-                                        Recording.time = callbackQuery.Data.Split().Last();
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Time = callbackQuery.Data.Split().Last();
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
+                                        var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
+                                        var json = new DataContractJsonSerializer(typeof(List<Client>));
+
+                                        using (FileStream fstream = new FileStream("Clients.json", FileMode.Create, FileAccess.Write, FileShare.None))
+                                        {
+                                            json.WriteObject(fstream, clientsindification);
+                                        }
 
                                         await botClient.EditMessageTextAsync(
                                             chat.Id,
                                             callbackQuery.Message.MessageId,
-                                            $"Вы хотите записаться на {Recording.dateTime.Day} в {Recording.time} " +
+                                            $"Вы хотите записаться на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day} в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time} " +
                                             "Все верно?",
                                             replyMarkup: Keyboards.confirmKeyboard,
                                             cancellationToken: cancellationToken);
