@@ -8,6 +8,7 @@ using System.Text.Json;
 using telegrambot;
 using System.Runtime.Serialization.Json;
 using System.Collections.Generic;
+using System.IO;
 
 namespace tgbot
 {
@@ -23,7 +24,15 @@ namespace tgbot
 
         static async Task Main()
         {
-            _clients = new List<Client>();
+            var json = new DataContractJsonSerializer(typeof(List<Client>));
+            try
+            {
+                using (FileStream fstream = System.IO.File.OpenRead("Clients.json"))
+                {
+                    _clients = (List<Client>)json.ReadObject(fstream);
+                }
+            }
+            catch (Exception ex) { _clients = new(); }
             _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
