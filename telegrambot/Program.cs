@@ -247,12 +247,6 @@ namespace tgbot
                                             json.WriteObject(fstream, clientsindification);
                                         }
 
-                                        await botClient.EditMessageTextAsync(
-                                            chat.Id,
-                                            callbackQuery.Message.MessageId,
-                                            $"Вы записаны на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
-                                            $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!",
-                                            cancellationToken: cancellationToken);
                                         return;
                                     }
                             }
