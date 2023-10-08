@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace telegrambot
 {
-    internal class Admin
+    interface Admin
     {
         public string Id {  get; set; }
     }

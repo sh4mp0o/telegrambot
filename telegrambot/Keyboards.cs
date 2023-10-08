@@ -7,7 +7,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace telegrambot
 {
-    static class Keyboards
+    interface IKeyboards
     {
         public static DateTime today = DateTime.Now;
 

@@ -92,7 +92,7 @@ namespace tgbot
                                         await botClient.SendTextMessageAsync(
                                             chat.Id,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                                            replyMarkup: Keyboards.mainMenu,
+                                            replyMarkup: IKeyboards.mainMenu,
                                             cancellationToken: cancellationToken); // Все клавиатуры передаются в параметр replyMarkup
 
                                         return;
@@ -135,7 +135,7 @@ namespace tgbot
                                               chat.Id,
                                               callbackQuery.Message.MessageId,
                                               $"Выберите дату 💅🏼",
-                                              replyMarkup: Keyboards.daysKeyboard,
+                                              replyMarkup: IKeyboards.daysKeyboard,
                                               cancellationToken: cancellationToken);
 
                                         return;
@@ -148,7 +148,9 @@ namespace tgbot
 
                                         await botClient.SendContactAsync(chat.Id, "+7 930 117 5831", "Виталия", cancellationToken: cancellationToken);
 
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "↓ Мой телеграм и номер телефона ↓", replyMarkup: Keyboards.backContacts, cancellationToken: cancellationToken);
+                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                            "↓ Мой телеграм и номер телефона ↓",
+                                            replyMarkup: IKeyboards.backContacts, cancellationToken: cancellationToken);
 
                                         return;
                                     }
@@ -162,7 +164,7 @@ namespace tgbot
                                               chat.Id,
                                               callbackQuery.Message.MessageId,
                                               $"Выберите время💅🏼",
-                                              replyMarkup: Keyboards.timeKeyboard,
+                                              replyMarkup: IKeyboards.timeKeyboard,
                                               cancellationToken: cancellationToken);
 
                                         return;
@@ -175,7 +177,7 @@ namespace tgbot
 
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                                            replyMarkup: Keyboards.mainMenu,
+                                            replyMarkup: IKeyboards.mainMenu,
                                             cancellationToken: cancellationToken);
 
                                         return;
@@ -188,7 +190,7 @@ namespace tgbot
                                         _clients.Remove(_clients.Find(x => x.Id == callbackQuery.From.Id));
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                                            replyMarkup: Keyboards.mainMenu,
+                                            replyMarkup: IKeyboards.mainMenu,
                                             cancellationToken: cancellationToken);
 
                                         return;
@@ -200,7 +202,7 @@ namespace tgbot
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Today;
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите дату 💅🏼",
-                                            replyMarkup: Keyboards.daysKeyboard,
+                                            replyMarkup: IKeyboards.daysKeyboard,
                                             cancellationToken: cancellationToken);
 
                                         return;
@@ -212,7 +214,7 @@ namespace tgbot
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите время💅🏼",
-                                            replyMarkup: Keyboards.timeKeyboard,
+                                            replyMarkup: IKeyboards.timeKeyboard,
                                             cancellationToken: cancellationToken);
 
                                         return;
@@ -234,14 +236,15 @@ namespace tgbot
                                         await botClient.EditMessageTextAsync(
                                             chat.Id,
                                             callbackQuery.Message.MessageId,
-                                            $"Вы хотите записаться на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day} в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time} " +
+                                            $"Вы хотите записаться на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
+                                            $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time} " +
                                             "Все верно?",
-                                            replyMarkup: Keyboards.confirmKeyboard,
+                                            replyMarkup: IKeyboards.confirmKeyboard,
                                             cancellationToken: cancellationToken);
 
                                         return;
                                     }
-                                case "button6":
+                                case "confirmButton":
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
