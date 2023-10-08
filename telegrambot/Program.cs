@@ -224,15 +224,6 @@ namespace tgbot
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Time = callbackQuery.Data.Split().Last();
-                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
-                                        var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
-                                        var json = new DataContractJsonSerializer(typeof(List<Client>));
-
-                                        using (FileStream fstream = new FileStream("Clients.json", FileMode.Create, FileAccess.Write, FileShare.None))
-                                        {
-                                            json.WriteObject(fstream, clientsindification);
-                                        }
-
                                         await botClient.EditMessageTextAsync(
                                             chat.Id,
                                             callbackQuery.Message.MessageId,
@@ -247,7 +238,21 @@ namespace tgbot
                                 case "confirmButton":
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
+                                        var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
+                                        var json = new DataContractJsonSerializer(typeof(List<Client>));
 
+                                        using (FileStream fstream = new FileStream("Clients.json", FileMode.Create, FileAccess.Write, FileShare.None))
+                                        {
+                                            json.WriteObject(fstream, clientsindification);
+                                        }
+
+                                        await botClient.EditMessageTextAsync(
+                                            chat.Id,
+                                            callbackQuery.Message.MessageId,
+                                            $"Вы записаны на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
+                                            $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!",
+                                            cancellationToken: cancellationToken);
                                         return;
                                     }
                             }
