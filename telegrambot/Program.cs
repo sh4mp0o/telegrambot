@@ -251,7 +251,7 @@ namespace tgbot
                                         }
 
                                         await botClient.SendTextMessageAsync(
-                                            5079754639,
+                                            456518653,
                                             $"Привет, у тебя новый клиент! Его зовут @{_clients.Find(x => x.Id == callbackQuery.From.Id).Username}," +
                                             $" он записался на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
                                             $" число в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}",
