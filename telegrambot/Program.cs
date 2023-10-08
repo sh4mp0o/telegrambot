@@ -237,7 +237,10 @@ namespace tgbot
                                     }
                                 case "confirmButton":
                                     {
-                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
+                                            $"Вы записаны на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day} число" +
+                                            $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!");
+
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
                                         var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
                                         var json = new DataContractJsonSerializer(typeof(List<Client>));
@@ -247,6 +250,15 @@ namespace tgbot
                                             json.WriteObject(fstream, clientsindification);
                                         }
 
+                                        await botClient.SendTextMessageAsync(
+                                            5079754639,
+                                            $"Привет, у тебя новый клиент! Его зовут @{_clients.Find(x => x.Id == callbackQuery.From.Id).Username}," +
+                                            $" он записался на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
+                                            $" число в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}",
+                                            cancellationToken: cancellationToken);
+                                        //456518653 - id Егора
+                                        //1384604605 - id Матвея
+                                        //5079754639 - id Витали
                                         return;
                                     }
                             }
