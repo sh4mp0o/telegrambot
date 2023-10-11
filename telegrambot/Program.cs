@@ -33,7 +33,7 @@ namespace tgbot
                 }
             }
             catch (Exception ex) { _clients = new(); }
-            _botClient = new TelegramBotClient("6339994820:AAEwqMnk_ZhcPoXPZKXbcdqFwuAAJKUjIq0"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
+            _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
@@ -221,6 +221,7 @@ namespace tgbot
                                         var month = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Month;
                                         var time = _clients.Find(x => x.Id == callbackQuery.From.Id).Time;
 
+                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Time = callbackQuery.Data.Split().Last();
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
                                         time = callbackQuery.Data.Split().Last();
@@ -255,7 +256,7 @@ namespace tgbot
                                         }
 
                                         await botClient.SendTextMessageAsync(
-                                            456518653,
+                                            1384604605,
                                             $"Привет, у тебя новый клиент! Его зовут @{user.Username}," +
                                             $" он записался на {day}." +
                                             $"{month} в {time}.",

@@ -26,6 +26,7 @@ namespace telegrambot
             }
             catch (Exception ex) { _client = new(); }
             DateTime _date = new DateTime();
+            _date = DateTime.Today.AddDays(i);
             int count = _client.FindAll(x => x.DateTime.Day == DateTime.Today.AddDays(i).Day).Count;
             if (_date.DayOfWeek == DayOfWeek.Sunday || _date.DayOfWeek == DayOfWeek.Saturday)
             {
@@ -66,7 +67,18 @@ namespace telegrambot
                    {
                         new InlineKeyboardButton[]
                         {
-                            InlineKeyboardButton.WithCallbackData("18:00", "time 18:00"),
+                            KeyboardTime("10:00",_date),
+                            //InlineKeyboardButton.WithCallbackData("10:00", "time 10:00"),
+                        },
+                        new InlineKeyboardButton[]
+                        {
+                            KeyboardTime("14:00",_date),
+                            //InlineKeyboardButton.WithCallbackData("14:00", "time 14:00"),
+                        },
+                        new InlineKeyboardButton[]
+                        {
+                            KeyboardTime("18:00",_date),
+                            //InlineKeyboardButton.WithCallbackData("18:00", "time 18:00"),
                         },
                         new InlineKeyboardButton[]
                         {
@@ -79,16 +91,6 @@ namespace telegrambot
                 return new InlineKeyboardMarkup(
                    new List<InlineKeyboardButton[]>()
                    {
-                        new InlineKeyboardButton[]
-                        {
-                            KeyboardTime("10:00",_date),
-                            //InlineKeyboardButton.WithCallbackData("10:00", "time 10:00"),
-                        },
-                        new InlineKeyboardButton[]
-                        {
-                            KeyboardTime("14:00",_date),
-                            //InlineKeyboardButton.WithCallbackData("14:00", "time 14:00"),
-                        },
                         new InlineKeyboardButton[]
                         {
                             KeyboardTime("18:00",_date),
