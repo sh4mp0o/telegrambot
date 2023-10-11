@@ -127,7 +127,7 @@ namespace tgbot
                                     {
                                         //Матвей, тут твоя работа
                                         //Console.WriteLine(callbackQuery.Message.);
-                                        Client client = new() {Id = callbackQuery.From.Id};
+                                        Client client = new() {Id = callbackQuery.From.Id, Username = callbackQuery.From.Username};
                                         _clients.Add(client);
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
@@ -146,10 +146,8 @@ namespace tgbot
 
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
 
-                                        await botClient.SendContactAsync(chat.Id, "+7 930 117 5831", "Виталия", cancellationToken: cancellationToken);
-
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                            "↓ Мой телеграм и номер телефона ↓",
+                                            "Номер телефона - +7-930-117-58-31.",
                                             replyMarkup: IKeyboards.backContacts, cancellationToken: cancellationToken);
 
                                         return;
@@ -172,8 +170,6 @@ namespace tgbot
                                 case "backContacts":
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-
-                                        await botClient.DeleteMessageAsync(chat.Id, callbackQuery.Message.MessageId + 1, cancellationToken: cancellationToken);
 
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
@@ -213,7 +209,7 @@ namespace tgbot
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                            $"Выберите время💅🏼",
+                                            $"Выберите время 💅🏼",
                                             replyMarkup: IKeyboards.timeKeyboard,
                                             cancellationToken: cancellationToken);
 
@@ -221,14 +217,18 @@ namespace tgbot
                                     }
                                 case "time":
                                     {
+                                        var day = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day;
+                                        var month = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Month;
+                                        var time = _clients.Find(x => x.Id == callbackQuery.From.Id).Time;
+
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
-                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Time = callbackQuery.Data.Split().Last();
+                                        time = callbackQuery.Data.Split().Last();
                                         await botClient.EditMessageTextAsync(
                                             chat.Id,
                                             callbackQuery.Message.MessageId,
-                                            $"Вы хотите записаться на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
-                                            $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time} " +
+                                            $"Вы хотите записаться на {day}.{month}" +
+                                            $" в {time} " +
                                             "Все верно?",
                                             replyMarkup: IKeyboards.confirmKeyboard,
                                             cancellationToken: cancellationToken);
@@ -237,8 +237,12 @@ namespace tgbot
                                     }
                                 case "confirmButton":
                                     {
+                                        var day = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day;
+                                        var month = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Month;
+                                        var time = _clients.Find(x => x.Id == callbackQuery.From.Id).Time;
+
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
-                                            $"Вы записаны на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day} число" +
+                                            $"Вы записаны на {day}.{month}" +
                                             $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!");
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
@@ -252,9 +256,17 @@ namespace tgbot
 
                                         await botClient.SendTextMessageAsync(
                                             456518653,
-                                            $"Привет, у тебя новый клиент! Его зовут @{_clients.Find(x => x.Id == callbackQuery.From.Id).Username}," +
-                                            $" он записался на {_clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day}" +
-                                            $" число в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}",
+                                            $"Привет, у тебя новый клиент! Его зовут @{user.Username}," +
+                                            $" он записался на {day}." +
+                                            $"{month} в {time}.",
+                                            cancellationToken: cancellationToken);
+
+                                        await botClient.EditMessageTextAsync(
+                                            chat.Id,
+                                            callbackQuery.Message.MessageId,
+                                            $"Вы записаны на {day}.{month} в {time}!" +
+                                            "\nНомер телефона - +7-930-117-58-31." +
+                                            "\nЧтобы перезапустить бота, напишите - /start.",
                                             cancellationToken: cancellationToken);
                                         //456518653 - id Егора
                                         //1384604605 - id Матвея

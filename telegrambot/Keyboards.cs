@@ -25,7 +25,7 @@ namespace telegrambot
                     },
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithUrl("Отзывы 📝", "https://vk.com/your_nails_yaroslavl"),
+                        InlineKeyboardButton.WithUrl("Мои работы 📝", "https://vk.com/your_nails_yaroslavl"),
                     },
             });
         //подтверждение записи
