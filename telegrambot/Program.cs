@@ -33,7 +33,7 @@ namespace tgbot
                 }
             }
             catch (Exception ex) { _clients = new(); }
-            _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
+            _botClient = new TelegramBotClient("6339994820:AAEwqMnk_ZhcPoXPZKXbcdqFwuAAJKUjIq0"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
             _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
             {
                 AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
@@ -162,7 +162,7 @@ namespace tgbot
                                               chat.Id,
                                               callbackQuery.Message.MessageId,
                                               $"Выберите время💅🏼",
-                                              replyMarkup: IKeyboards.timeKeyboard,
+                                              replyMarkup: IKeyboards.Time(callbackQuery.From.Id, _clients),
                                               cancellationToken: cancellationToken);
 
                                         return;
@@ -209,8 +209,8 @@ namespace tgbot
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                            $"Выберите время 💅🏼",
-                                            replyMarkup: IKeyboards.timeKeyboard,
+                                            $"Выберите время💅🏼",
+                                            replyMarkup: IKeyboards.Time(callbackQuery.From.Id, _clients),
                                             cancellationToken: cancellationToken);
 
                                         return;
@@ -271,6 +271,28 @@ namespace tgbot
                                         //456518653 - id Егора
                                         //1384604605 - id Матвея
                                         //5079754639 - id Витали
+                                        return;
+                                    }
+                                case "buzyday":
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        await botClient.EditMessageTextAsync(
+                                            chat.Id,
+                                            callbackQuery.Message.MessageId,
+                                            $"Все записи заняты на этот день",
+                                            replyMarkup: IKeyboards.buzyday,
+                                            cancellationToken: cancellationToken);
+                                        return;
+                                    }
+                                case "buzytime":
+                                    {
+                                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                                        await botClient.EditMessageTextAsync(
+                                            chat.Id,
+                                            callbackQuery.Message.MessageId,
+                                            $"Записи на это время недоступно",
+                                            replyMarkup: IKeyboards.buzyTime,
+                                            cancellationToken: cancellationToken);
                                         return;
                                     }
                             }

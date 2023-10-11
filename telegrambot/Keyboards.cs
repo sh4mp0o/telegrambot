@@ -37,7 +37,7 @@ namespace telegrambot
                         InlineKeyboardButton.WithCallbackData("Да, все верно ✅", "confirmButton"),
                     },
                     new InlineKeyboardButton[]
-                    { 
+                    {
                         InlineKeyboardButton.WithCallbackData("Назад ◀️","backConfirm") //либо альтернатива: писать для каждого уровня свою кнопку назад
                     },
             });
@@ -47,22 +47,32 @@ namespace telegrambot
             {
                     new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backContacts")}
             });
+        public static InlineKeyboardMarkup buzyday = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                    new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backTime") }
+            });
+        public static InlineKeyboardMarkup buzyTime = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                    new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backConfirm") }
+            });
 
         public static InlineKeyboardMarkup daysKeyboard = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
             {
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(1).Day+"."+today.Month, "day 1"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(2).Day+"."+today.Month, "day 2"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(3).Day+"."+today.Month, "day 3"),
+                        Check.KeyboardDay(1),
+                        Check.KeyboardDay(2),
+                        Check.KeyboardDay(3),
                     },
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(4).Day+"."+today.Month, "day 4"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(5).Day+"."+today.Month, "day 5"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(6).Day+"."+today.Month, "day 6"),
-                        InlineKeyboardButton.WithCallbackData(today.AddDays(7).Day+"."+today.Month, "day 7"),
+                        Check.KeyboardDay(4),
+                        Check.KeyboardDay(5),
+                        Check.KeyboardDay(6),
+                        Check.KeyboardDay(7),
                     },
                     new InlineKeyboardButton[]
                     {
@@ -75,20 +85,24 @@ namespace telegrambot
             {
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("14:00-16:00", "time 14:00-16:00"),
+                        InlineKeyboardButton.WithCallbackData("10:00", "time 10:00"),
                     },
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("16:00-18:00", "time 16:00-18:00"),
+                        InlineKeyboardButton.WithCallbackData("14:00", "time 14:00"),
                     },
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("18:00-20:00", "time 18:00-20:00"),
+                        InlineKeyboardButton.WithCallbackData("18:00", "time 18:00"),
                     },
                     new InlineKeyboardButton[]
                     {
                         InlineKeyboardButton.WithCallbackData("Назад ◀️","backTime")
                     }
             });
+        public static InlineKeyboardMarkup Time(long id,List<Client> clients)
+        {
+            return Check.KeyboardDayAndTime(id,clients);
+        }
     }
 }
