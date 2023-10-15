@@ -1,29 +1,26 @@
-﻿using Telegram.Bot;
+﻿using System.Runtime.Serialization.Json;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using System.Text.Json;
 using telegrambot;
-using System.Runtime.Serialization.Json;
-using System.Collections.Generic;
-using System.IO;
 
 namespace tgbot
 {
     internal class Program
     {
-        // Это клиент для работы с Telegram Bot API, который позволяет отправлять сообщения, управлять ботом, подписываться на обновления и многое другое.
         private static ITelegramBotClient? _botClient;
-
-        // Это объект с настройками работы бота. Здесь мы будем указывать, какие типы Update мы будем получать, Timeout бота и так далее.
         private static ReceiverOptions? _receiverOptions;
         private static List<Client> _clients;
 
 
         static async Task Main()
         {
+            _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // TOKEN HERE
+
+
             var json = new DataContractJsonSerializer(typeof(List<Client>));
             try
             {
@@ -32,28 +29,28 @@ namespace tgbot
                     _clients = (List<Client>)json.ReadObject(fstream);
                 }
             }
-            catch (Exception ex) { _clients = new(); }
-            _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
-            _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
+            catch (Exception ex)
             {
-                AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
+                _clients = new();
+            }
+
+            _receiverOptions = new ReceiverOptions // bot settings
+            {
+                AllowedUpdates = new[] 
                 {
-                    UpdateType.Message, // Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
-                    UpdateType.CallbackQuery // Inline кнопки
+                    UpdateType.Message, 
+                    UpdateType.CallbackQuery
                 },
-                // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
-                // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
-                ThrowPendingUpdates = true,
+                ThrowPendingUpdates = true, // take an update while bot was offline or not
             };
 
             using var cts = new CancellationTokenSource();
 
-            // UpdateHander - обработчик приходящих Update`ов
-            // ErrorHandler - обработчик ошибок, связанных с Bot API
-            _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token); // Запускаем бота
+            _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token);
 
-            var me = await _botClient.GetMeAsync(); // Создаем переменную, в которую помещаем информацию о нашем боте.
-            Console.WriteLine($"{me.FirstName} запущен!");
+            var bot = await _botClient.GetMeAsync();
+
+            Console.WriteLine($"{bot.FirstName} запущен!");
 
             await Task.Delay(-1); // Устанавливаем бесконечную задержку, чтобы наш бот работал постоянно
         }
@@ -62,30 +59,22 @@ namespace tgbot
             //TODO попробовать описать логичнее удаление предыдущего сообщения, иначе могут возникнуть коллизии после первой итерации, через botMessage.Id
             //TODO реализовать более унифицированный и лакончиный код
 
-
-            // Обязательно ставим блок try-catch, чтобы наш бот не "падал" в случае каких-либо ошибок
             try
             {
 
-                // эта переменная будет содержать в себе все связанное с сообщениями
                 var message = update.Message;
-                // Сразу же ставим конструкцию switch, чтобы обрабатывать приходящие Update
                 switch (update.Type)
                 {
                     case UpdateType.Message:
                         {
-                            // From - это от кого пришло сообщение (или любой другой Update)
                             var user = message.From;
 
-                            // Выводим на экран то, что пишут нашему боту, а также небольшую информацию об отправителе
-                            Console.WriteLine($"{user.FirstName} ({user.Id}) написал сообщение: {message.Text}");
-
-                            // Chat - содержит всю информацию о чате
                             var chat = message.Chat;
+
+                            Console.WriteLine($"{user.FirstName} ({user.Id}) написал сообщение: {message.Text}");
 
                             switch (message.Type)
                             {
-                                // Тут понятно, текстовый тип
                                 case MessageType.Text:
                                     if (message.Text == "/start")
                                     {
@@ -93,31 +82,32 @@ namespace tgbot
                                             chat.Id,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
                                             replyMarkup: IKeyboards.mainMenu,
-                                            cancellationToken: cancellationToken); // Все клавиатуры передаются в параметр replyMarkup
+                                            cancellationToken: cancellationToken);
 
                                         return;
                                     }
                                     return;
+                                case MessageType.Contact:
+                                    {
+                                        if (message.Type == MessageType.Contact && message.Contact != null)
+                                        {
+                                            Console.WriteLine($"Phone number: {message.Contact.PhoneNumber}");
+                                        }
+                                        return;
+                                    }
                                 default: return;
                             }
                         }
                     case UpdateType.CallbackQuery:
                         {
-                            // Переменная, которая будет содержать в себе всю информацию о кнопке, которую нажали
                             var callbackQuery = update.CallbackQuery;
-
-                            // Аналогично и с Message мы можем получить информацию о чате, о пользователе и т.д.
+                            
                             var user = callbackQuery.From;
 
-                            // Выводим на экран нажатие кнопки
-                            Console.WriteLine($"{user.FirstName} ({user.Id}) нажал на кнопку: {callbackQuery.Data}");
-
-                            // Вот тут нужно уже быть немножко внимательным и не путаться!
-                            // Мы пишем не callbackQuery.Chat , а callbackQuery.Message.Chat , так как
-                            // кнопка привязана к сообщению, то мы берем информацию от сообщения.
                             var chat = callbackQuery.Message.Chat;
 
-                            // Добавляем блок switch для проверки кнопок
+                            Console.WriteLine($"{user.FirstName} ({user.Id}) нажал на кнопку: {callbackQuery.Data}");
+
                             switch (callbackQuery.Data.Split().First())
                             {
                                 // Data - это придуманный нами id кнопки, мы его указывали в параметре
@@ -125,11 +115,10 @@ namespace tgbot
 
                                 case "recButton":
                                     {
-                                        //Матвей, тут твоя работа
-                                        //Console.WriteLine(callbackQuery.Message.);
-                                        Client client = new() {Id = callbackQuery.From.Id, Username = callbackQuery.From.Username};
-                                        _clients.Add(client);
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+
+                                        Client client = new() { Id = callbackQuery.From.Id, Username = chat.Username };
+                                        _clients.Add(client);
 
                                         await botClient.EditMessageTextAsync(
                                               chat.Id,
@@ -142,8 +131,6 @@ namespace tgbot
                                     }
                                 case "contactButton":
                                     {
-                                        //await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId, "smth", replyMarkup: inlineKeyboard, cancellationToken:cancellationToken);
-
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, cancellationToken: cancellationToken);
 
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
@@ -182,7 +169,6 @@ namespace tgbot
                                     {
                                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
 
-                                        //await botClient.DeleteMessageAsync(chat.Id, callbackQuery.Message.MessageId + 1, cancellationToken: cancellationToken);
                                         _clients.Remove(_clients.Find(x => x.Id == callbackQuery.From.Id));
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
@@ -247,17 +233,18 @@ namespace tgbot
                                             $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!");
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
-                                        var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
-                                        var json = new DataContractJsonSerializer(typeof(List<Client>));
 
+                                        var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
+
+                                        var json = new DataContractJsonSerializer(typeof(List<Client>), new DataContractJsonSerializerSettings());
                                         using (FileStream fstream = new FileStream("Clients.json", FileMode.Create, FileAccess.Write, FileShare.None))
                                         {
                                             json.WriteObject(fstream, clientsindification);
                                         }
 
                                         await botClient.SendTextMessageAsync(
-                                            1384604605,
-                                            $"Привет, у тебя новый клиент! Его зовут @{user.Username}," +
+                                            456518653,
+                                            $"Привет, у тебя новый клиент! Его зовут @{callbackQuery.Message.Chat.Username}," +
                                             $" он записался на {day}." +
                                             $"{month} в {time}.",
                                             cancellationToken: cancellationToken);
@@ -269,6 +256,8 @@ namespace tgbot
                                             "\nНомер телефона - +7-930-117-58-31." +
                                             "\nЧтобы перезапустить бота, напишите - /start.",
                                             cancellationToken: cancellationToken);
+
+                                        _ = RequestContact(botClient, callbackQuery.Message.Chat.Id);
                                         //456518653 - id Егора
                                         //1384604605 - id Матвея
                                         //5079754639 - id Витали
@@ -308,9 +297,22 @@ namespace tgbot
                 Console.WriteLine(ex.ToString());
             }
         }
+
+        private static async Task<Message> RequestContact(ITelegramBotClient botClient, ChatId chatId)
+        {
+            ReplyKeyboardMarkup requestReplyKeyboard = new(
+                new[]
+                {
+                    KeyboardButton.WithRequestContact("Поделиться номером телефона"),
+                });
+
+            return await botClient.SendTextMessageAsync(chatId: chatId,
+                                                        text: "Пожалуйста, поделитесь номером телефона.",
+                                                        replyMarkup: requestReplyKeyboard);
+        }
+
         private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
         {
-            // Тут создадим переменную, в которую поместим код ошибки и её сообщение
             var ErrorMessage = error switch
             {
                 ApiRequestException apiRequestException
