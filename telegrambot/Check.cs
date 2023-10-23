@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+#pragma warning disable CS8602
+#pragma warning disable CS8600
+
 
 namespace telegrambot
 {
     static internal class Check
     {
-        private static List<Client> _client;
-        private static DateTime _date;
+        private static List<Client>? _client;
         static public InlineKeyboardButton KeyboardDay(int i)
         {
             var json = new DataContractJsonSerializer(typeof(List<Client>));
@@ -24,7 +26,7 @@ namespace telegrambot
                     _client = (List<Client>)json.ReadObject(fstream);
                 }
             }
-            catch (Exception ex) { _client = new(); }
+            catch (Exception) { _client = new(); }
             DateTime _date = new DateTime();
             _date = DateTime.Today.AddDays(i);
             int count = _client.FindAll(x => x.DateTime.Day == DateTime.Today.AddDays(i).Day).Count;
@@ -43,10 +45,8 @@ namespace telegrambot
                     return InlineKeyboardButton.WithCallbackData(DateTime.Today.AddDays(i).Day + "." + DateTime.Today.Month, $"day {i}");
                 }
                 return InlineKeyboardButton.WithCallbackData(DateTime.Today.AddDays(i).Day + "." + DateTime.Today.Month, $"buzyday");
-
             }
         }
-
         static public InlineKeyboardMarkup KeyboardDayAndTime(long id, List<Client> clients)
         {
             DateTime _date = new DateTime();
@@ -58,7 +58,7 @@ namespace telegrambot
                     _client = (List<Client>)json.ReadObject(fstream);
                 }
             }
-            catch (Exception ex) { _client = new(); }
+            catch (Exception) { _client = new(); }
             _date = clients.Find(x => x.Id == id).DateTime;
             if (_date.DayOfWeek == DayOfWeek.Sunday || _date.DayOfWeek == DayOfWeek.Saturday)
             {
@@ -114,7 +114,7 @@ namespace telegrambot
                     _client = (List<Client>)json.ReadObject(fstream);
                 }
             }
-            catch (Exception ex) { _client = new(); }
+            catch (Exception) { _client = new(); }
             if (_client.Exists(x => x.DateTime.Day == date.Day && x.Time == time))
             {
                 return InlineKeyboardButton.WithCallbackData(time, $"buzytime");
