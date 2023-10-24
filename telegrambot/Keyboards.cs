@@ -56,49 +56,6 @@ namespace telegrambot
             {
                     new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backConfirm") }
             });
-
-        //public static InlineKeyboardMarkup daysKeyboard = new InlineKeyboardMarkup(
-        //    new List<List<InlineKeyboardButton>>()
-        //    {
-        //            new List<InlineKeyboardButton>
-        //            {
-        //                Check.KeyboardDay(1),
-        //                Check.KeyboardDay(2),
-        //                Check.KeyboardDay(3),
-        //            },
-        //            new List<InlineKeyboardButton>
-        //            {
-        //                Check.KeyboardDay(4),
-        //                Check.KeyboardDay(5),
-        //                Check.KeyboardDay(6),
-        //                Check.KeyboardDay(7),
-        //            },
-        //            new List<InlineKeyboardButton>
-        //            {
-        //                InlineKeyboardButton.WithCallbackData("Назад ◀️","backDays")
-        //            }
-        //    });
-
-        //public static InlineKeyboardMarkup timeKeyboard = new InlineKeyboardMarkup(
-        //    new List<InlineKeyboardButton[]>()
-        //    {
-        //            new InlineKeyboardButton[]
-        //            {
-        //                InlineKeyboardButton.WithCallbackData("10:00", "time 10:00"),
-        //            },
-        //            new InlineKeyboardButton[]
-        //            {
-        //                InlineKeyboardButton.WithCallbackData("14:00", "time 14:00"),
-        //            },
-        //            new InlineKeyboardButton[]
-        //            {
-        //                InlineKeyboardButton.WithCallbackData("18:00", "time 18:00"),
-        //            },
-        //            new InlineKeyboardButton[]
-        //            {
-        //                InlineKeyboardButton.WithCallbackData("Назад ◀️","backTime")
-        //            }
-        //    });
         public static InlineKeyboardMarkup Time(long id,List<Client> clients)
         {
             return Check.KeyboardTimes(id,clients);
