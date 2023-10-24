@@ -160,13 +160,21 @@ namespace tgbot
                                     }
                                 case "backDays": //? alternative of backbutton from recording.cs
                                     {
-                                        _clients.Remove(_clients.Find(x => x.Id == callbackQuery.From.Id));
+                                        try
+                                        {
+                                            _clients.Remove(_clients.Find(x => x.Id == callbackQuery.From.Id));
+                                        }
+                                        catch (Exception) { }
 
                                         goto case "backContacts";
                                     }
                                 case "backTime":
                                     {
-                                        _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Today;
+                                        try
+                                        {
+                                            _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Today;
+                                        }
+                                        catch (Exception) { }
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите дату 💅🏼",
                                             replyMarkup: IKeyboards.Day(),
@@ -176,7 +184,11 @@ namespace tgbot
                                     }
                                 case "backConfirm":
                                     {
-                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
+                                        try
+                                        {
+                                            _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
+                                        }
+                                        catch (Exception) { }
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите время💅🏼",
                                             replyMarkup: IKeyboards.Time(callbackQuery.From.Id, _clients),
@@ -240,26 +252,6 @@ namespace tgbot
                                         //456518653 - id Егора
                                         //1384604605 - id Матвея
                                         //5079754639 - id Витали
-                                        return;
-                                    }
-                                case "buzyday":
-                                    {
-                                        await botClient.EditMessageTextAsync(
-                                            chat.Id,
-                                            callbackQuery.Message.MessageId,
-                                            $"Запись на этот день недоступна.",
-                                            replyMarkup: IKeyboards.buzyday,
-                                            cancellationToken: cancellationToken);
-                                        return;
-                                    }
-                                case "buzytime":
-                                    {
-                                        await botClient.EditMessageTextAsync(
-                                            chat.Id,
-                                            callbackQuery.Message.MessageId,
-                                            $"Запись на это время недоступна.",
-                                            replyMarkup: IKeyboards.buzyTime,
-                                            cancellationToken: cancellationToken);
                                         return;
                                     }
                             }
