@@ -16,17 +16,9 @@ namespace telegrambot
     static internal class Check
     {
         private static List<Client>? _client;
-        static public InlineKeyboardButton KeyboardDay(int i)
+        static public string KeyboardDay(int i)
         {
-            var json = new DataContractJsonSerializer(typeof(List<Client>));
-            try
-            {
-                using (FileStream fstream = System.IO.File.OpenRead("Clients.json"))
-                {
-                    _client = (List<Client>)json.ReadObject(fstream);
-                }
-            }
-            catch (Exception) { _client = new(); }
+            _client = SerializationOfClient.Deserialization();
             DateTime _date = new DateTime();
             _date = DateTime.Today.AddDays(i);
             int count = _client.FindAll(x => x.DateTime.Day == DateTime.Today.AddDays(i).Day).Count;
@@ -34,94 +26,88 @@ namespace telegrambot
             {
                 if (count < 3)
                 {
-                    return InlineKeyboardButton.WithCallbackData(DateTime.Today.AddDays(i).Day + "." + DateTime.Today.Month, $"day {i}");
+                    return $"true {DateTime.Today.AddDays(i).Day}.{DateTime.Today.Month}";
                 }
-                return InlineKeyboardButton.WithCallbackData(DateTime.Today.AddDays(i).Day + "." + DateTime.Today.Month, $"buzyday");
+                return "false";
             }
             else
             {
                 if (count <= 0)
                 {
-                    return InlineKeyboardButton.WithCallbackData(DateTime.Today.AddDays(i).Day + "." + DateTime.Today.Month, $"day {i}");
+                    return $"true  {DateTime.Today.AddDays(i).Day}.{DateTime.Today.Month}";
                 }
-                return InlineKeyboardButton.WithCallbackData(DateTime.Today.AddDays(i).Day + "." + DateTime.Today.Month, $"buzyday");
+                return "false";
             }
         }
-        static public InlineKeyboardMarkup KeyboardDayAndTime(long id, List<Client> clients)
+        static public InlineKeyboardMarkup KeyboardDays()
+        {
+            List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>
+            {
+                new List<InlineKeyboardButton>()
+            };
+            for (int i = 1; i < 4; i++)
+            {
+                if (KeyboardDay(i).Split().First() == "true")
+                {
+                    list[0].Add(InlineKeyboardButton.WithCallbackData($"{KeyboardDay(i).Split().Last()}", $"day {i}"));
+                }
+            }
+            list.Add(new List<InlineKeyboardButton>());
+            for (int i = 4; i < 8; i++)
+            {
+                if (KeyboardDay(i).Split().First() == "true")
+                {
+                    list[1].Add(InlineKeyboardButton.WithCallbackData($"{KeyboardDay(i).Split().Last()}", $"day {i}"));
+                }
+            }
+            list.Add(new List<InlineKeyboardButton>());
+            list[2].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backDays"));
+            return new InlineKeyboardMarkup(list);
+        }
+        static public InlineKeyboardMarkup KeyboardTimes(long id, List<Client> clients)
         {
             DateTime _date = new DateTime();
-            var json = new DataContractJsonSerializer(typeof(List<Client>));
-            try
-            {
-                using (FileStream fstream = System.IO.File.OpenRead("Clients.json"))
-                {
-                    _client = (List<Client>)json.ReadObject(fstream);
-                }
-            }
-            catch (Exception) { _client = new(); }
+            DateTime _dateTime = new DateTime(2023,10,24,10,0,0);
+            _client = SerializationOfClient.Deserialization();
             _date = clients.Find(x => x.Id == id).DateTime;
+            List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
             if (_date.DayOfWeek == DayOfWeek.Sunday || _date.DayOfWeek == DayOfWeek.Saturday)
             {
-                return new InlineKeyboardMarkup(
-                   new List<InlineKeyboardButton[]>()
-                   {
-                        new InlineKeyboardButton[]
-                        {
-                            KeyboardTime("10:00",_date),
-                            //InlineKeyboardButton.WithCallbackData("10:00", "time 10:00"),
-                        },
-                        new InlineKeyboardButton[]
-                        {
-                            KeyboardTime("14:00",_date),
-                            //InlineKeyboardButton.WithCallbackData("14:00", "time 14:00"),
-                        },
-                        new InlineKeyboardButton[]
-                        {
-                            KeyboardTime("18:00",_date),
-                            //InlineKeyboardButton.WithCallbackData("18:00", "time 18:00"),
-                        },
-                        new InlineKeyboardButton[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Назад ◀️","backTime")
-                        }
-                   });
-            }
-            else
-            {
-                return new InlineKeyboardMarkup(
-                   new List<InlineKeyboardButton[]>()
-                   {
-                        new InlineKeyboardButton[]
-                        {
-                            KeyboardTime("18:00",_date),
-                            //InlineKeyboardButton.WithCallbackData("18:00", "time 18:00"),
-                        },
-                        new InlineKeyboardButton[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Назад ◀️","backTime")
-                        }
-                   }) ;
-
-            }
-        }
-        static public InlineKeyboardButton KeyboardTime(string time,DateTime date)
-        {
-            var json = new DataContractJsonSerializer(typeof(List<Client>));
-            try
-            {
-                using (FileStream fstream = System.IO.File.OpenRead("Clients.json"))
+                for (int i = 0; i < 3; i++)
                 {
-                    _client = (List<Client>)json.ReadObject(fstream);
+                    list.Add(new List<InlineKeyboardButton>());
+                    if (KeyboardTime(_dateTime.AddHours(i*4).Hour.ToString(), _date).Split().First() == "true")
+                    {
+                        list[i].Add(InlineKeyboardButton.WithCallbackData($"{KeyboardTime(_dateTime.AddHours(i * 4).Hour.ToString(), _date).Split().Last()}:00", $"time {KeyboardTime(_dateTime.AddHours(i * 4).Hour.ToString(), _date).Split().Last()}:00"));
+                    }
                 }
-            }
-            catch (Exception) { _client = new(); }
-            if (_client.Exists(x => x.DateTime.Day == date.Day && x.Time == time))
-            {
-                return InlineKeyboardButton.WithCallbackData(time, $"buzytime");
+                list.Add(new List<InlineKeyboardButton>());
+                list[3].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backTime"));
+                return new InlineKeyboardMarkup(list);
             }
             else
             {
-                return InlineKeyboardButton.WithCallbackData(time, $"time {time}");
+                list.Add(new List<InlineKeyboardButton>());
+                if (KeyboardTime("18:00", _date).Split().First() == "true")
+                {
+                    list[0].Add(InlineKeyboardButton.WithCallbackData($"{KeyboardTime("18:00", _date).Split().Last()}", $"time {KeyboardTime("18:00", _date).Split().Last()}"));
+                }
+                list.Add(new List<InlineKeyboardButton>());
+                list[1].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backTime"));
+                return new InlineKeyboardMarkup(list);
+            }
+
+        }
+        static public string KeyboardTime(string time,DateTime date)
+        {
+            _client = SerializationOfClient.Deserialization();
+            if (_client.Exists(x => x.DateTime.Day == date.Day && x.Time == time+":00"))
+            {
+                return "false";
+            }
+            else
+            {
+                return $"true {time}";
             }
         }
     }

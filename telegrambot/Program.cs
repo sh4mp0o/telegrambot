@@ -24,19 +24,19 @@ namespace tgbot
         {
             _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // TOKEN HERE
 
-
-            var json = new DataContractJsonSerializer(typeof(List<Client>));
-            try
-            {
-                using (FileStream fstream = System.IO.File.OpenRead("Clients.json"))
-                {
-                    _clients = (List<Client>)json.ReadObject(fstream);
-                }
-            }
-            catch (Exception)
-            {
-                _clients = new();
-            }
+            _clients = SerializationOfClient.Deserialization();
+            //var json = new DataContractJsonSerializer(typeof(List<Client>));
+            //try
+            //{
+            //    using (FileStream fstream = System.IO.File.OpenRead("Clients.json"))
+            //    {
+            //        _clients = (List<Client>)json.ReadObject(fstream);
+            //    }
+            //}
+            //catch (Exception)
+            //{
+            //    _clients = new();
+            //}
 
             _receiverOptions = new ReceiverOptions // bot settings
             {
@@ -135,7 +135,7 @@ namespace tgbot
                                               chat.Id,
                                               callbackQuery.Message.MessageId,
                                               $"Выберите дату 💅🏼",
-                                              replyMarkup: IKeyboards.daysKeyboard,
+                                              replyMarkup: IKeyboards.Day(),
                                               cancellationToken: cancellationToken);
 
                                         return;
@@ -181,7 +181,7 @@ namespace tgbot
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Today;
                                         await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
                                             $"Выберите дату 💅🏼",
-                                            replyMarkup: IKeyboards.daysKeyboard,
+                                            replyMarkup: IKeyboards.Day(),
                                             cancellationToken: cancellationToken);
 
                                         return;
@@ -231,17 +231,17 @@ namespace tgbot
                                             cancellationToken: cancellationToken);
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
+                                        SerializationOfClient.Serialization(_clients);
+                                        //var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
 
-                                        var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
-
-                                        var json = new DataContractJsonSerializer(typeof(List<Client>), new DataContractJsonSerializerSettings());
-                                        using (FileStream fstream = new FileStream("Clients.json", FileMode.Create, FileAccess.Write, FileShare.None))
-                                        {
-                                            json.WriteObject(fstream, clientsindification);
-                                        }
+                                        //var json = new DataContractJsonSerializer(typeof(List<Client>), new DataContractJsonSerializerSettings());
+                                        //using (FileStream fstream = new FileStream("Clients.json", FileMode.Create, FileAccess.Write, FileShare.None))
+                                        //{
+                                        //    json.WriteObject(fstream, clientsindification);
+                                        //}
 
                                         await botClient.SendTextMessageAsync(
-                                            5079754639,
+                                            1384604605,
                                             $"Привет, у тебя новый клиент! Его зовут @{callbackQuery.Message.Chat.Username}," +
                                             $" он записался на {day}." +
                                             $"{month} в {time}.",
