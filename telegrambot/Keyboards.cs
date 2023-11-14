@@ -9,6 +9,8 @@ namespace telegrambot
 {
     interface IKeyboards
     {
+        #region CLIENT
+
         public static DateTime today = DateTime.Now;
 
         // Главное меню
@@ -56,13 +58,45 @@ namespace telegrambot
             {
                     new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backConfirm") }
             });
-        public static InlineKeyboardMarkup Time(long id,List<Client> clients)
+        public static InlineKeyboardMarkup Time(long id, List<Client> clients)
         {
-            return Check.KeyboardTimes(id,clients);
+            return Check.KeyboardTimes(id, clients);
         }
         public static InlineKeyboardMarkup Day()
         {
             return Check.KeyboardDays();
         }
+        #endregion
+
+        #region ADMIN
+        //Admin main menu
+        public static InlineKeyboardMarkup adminMainMenu = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Посмотреть активные записи", "existRecsButton"),
+                    },
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Редактировать записи", "editRecsButton"),
+                    },
+            });
+
+        //TODO make keyboard and logic for admin stuff ↓
+        //Admin existing records menu
+        public static InlineKeyboardMarkup backExistRecs = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                    new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backExistRecs") }
+            });
+
+        //Admin editing records menu
+        public static InlineKeyboardMarkup backEditRecs = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                    new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backEditRecs") }
+            });
+        #endregion
     }
 }

@@ -54,6 +54,7 @@ namespace tgbot
             try
             {
                 var message = update.Message;
+
                 switch (update.Type)
                 {
                     case UpdateType.Message:
@@ -67,6 +68,13 @@ namespace tgbot
                             switch (message.Type)
                             {
                                 case MessageType.Text:
+
+                                    if (message.From.Id == Admin.id)
+                                    {
+                                        Admin.AdminUpdateHandler(botClient, update, cancellationToken);
+                                        return;
+                                    }
+
                                     if (message.Text == "/start")
                                     {
                                         await botClient.SendTextMessageAsync(
@@ -101,6 +109,13 @@ namespace tgbot
                         }
                     case UpdateType.CallbackQuery:
                         {
+
+                            if (update.CallbackQuery.From.Id == Admin.id)
+                            {
+                                Admin.AdminUpdateHandler(botClient, update, cancellationToken);
+                                return;
+                            }
+
                             var callbackQuery = update.CallbackQuery;
                             
                             var user = callbackQuery.From;
@@ -151,7 +166,9 @@ namespace tgbot
                                     }
                                 case "backContacts":
                                     {
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                        await botClient.EditMessageTextAsync(
+                                            chat.Id,
+                                            callbackQuery.Message.MessageId,
                                             "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
                                             replyMarkup: IKeyboards.mainMenu,
                                             cancellationToken: cancellationToken);
