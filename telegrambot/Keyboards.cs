@@ -127,18 +127,18 @@ namespace telegrambot
                     }
 
             });
-        public static InlineKeyboardMarkup Editing(string id)
+        public static InlineKeyboardMarkup Editing()
         {
             InlineKeyboardMarkup editing = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
             {
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "recButton"+" "+id)
+                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "recButton")
                     },
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("Удалить", "delete"+" "+id)
+                        InlineKeyboardButton.WithCallbackData("Удалить", "delete")
                     },
                     new InlineKeyboardButton[]
                     {
@@ -148,6 +148,11 @@ namespace telegrambot
             });
             return editing;
         }
+        //public static InlineKeyboardMarkup DayAndTime()
+        //{
+        //    List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
+
+        //}
         #endregion
     }
 }

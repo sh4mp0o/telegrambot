@@ -1,4 +1,6 @@
-﻿using Telegram.Bot;
+﻿using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -7,6 +9,7 @@ namespace telegrambot
     class Admin
     {
         public const int id = 1384604605;
+        public static string idclient = null;
         public static async Task AdminUpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var message = update.Message;
@@ -83,21 +86,34 @@ namespace telegrambot
                                 }
                             case "redaction":
                                 {
+                                    idclient = callbackQuery.Data.Split().Last();
                                     await botClient.EditMessageTextAsync(
                                         chat.Id,
                                         callbackQuery.Message.MessageId,
                                         "Выберите как хотите отредактировать:",
-                                        replyMarkup: IKeyboards.Editing(callbackQuery.Data.Split().Last()),
+                                        replyMarkup: IKeyboards.Editing(),
                                         cancellationToken: cancellationToken);
                                     return;
                                 }
                             case "delete":
                                 {
                                     List<Client> clients = SerializationOfClient.Deserialization();
-                                    clients.Remove(clients.Find(x => x.Id.ToString() == callbackQuery.Data.Split().Last()));
+                                    clients.Remove(clients.Find(x => x.Id.ToString() == idclient));
                                     SerializationOfClient.Serialization(clients);
                                     goto case "editRecsButton";
                                 }
+                            //case "recButton":
+                            //    {
+
+                            //        await botClient.EditMessageTextAsync(
+                            //              chat.Id,
+                            //              callbackQuery.Message.MessageId,
+                            //              $"Выберите дату и время 💅🏼",
+                            //              replyMarkup: IKeyboards.DayAndTime(),
+                            //              cancellationToken: cancellationToken);
+
+                            //        return;
+                            //    }
                             case "backEditRecs":
                                 {
                                     goto case "backExistRecs";
