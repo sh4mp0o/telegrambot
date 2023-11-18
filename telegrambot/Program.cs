@@ -91,7 +91,8 @@ namespace tgbot
                                         if (message.Type == MessageType.Contact && message.Contact != null && flag)
                                         {
                                             Console.WriteLine($"Phone number: {message.Contact.PhoneNumber}");
-
+                                            _clients.Find(x => x.Id == update.Message.From.Id).Phone = message.Contact.PhoneNumber;
+                                            SerializationOfClient.Serialization(_clients);
                                             await botClient.SendContactAsync(
                                                 5079754639,
                                                 phoneNumber: message.Contact.PhoneNumber,
@@ -248,7 +249,6 @@ namespace tgbot
                                             cancellationToken: cancellationToken);
 
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
-                                        SerializationOfClient.Serialization(_clients);
 
                                         await botClient.SendTextMessageAsync(
                                             1384604605,

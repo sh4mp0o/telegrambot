@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace telegrambot
 {
     [Serializable]
-    internal class Client
+    internal class Client:IComparable<Client>
     {
         private DateTime _dateTime = DateTime.Today;
         private string _time;
@@ -16,6 +16,7 @@ namespace telegrambot
         private Survey _survey;
         private bool _confirmation = false;
         private string _username;
+        private string _phone;
 
         public Client() { }
 
@@ -44,7 +45,21 @@ namespace telegrambot
             get => _username;
             set => _username = value;
         }
+        public string Phone
+        {
+            get => _phone;
+            set => _phone = value;
+        }
         public bool Confirmation { set => _confirmation = value; get => _confirmation; }
         public Survey Survey { get => _survey;}
+
+        public int CompareTo(Client? other)
+        {
+            if (this.DateTime > other.DateTime)
+                return 1;
+            if (this.DateTime < other.DateTime)
+                return -1;
+            return 0;
+        }
     }
 }

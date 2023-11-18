@@ -92,11 +92,62 @@ namespace telegrambot
             });
 
         //Admin editing records menu
-        public static InlineKeyboardMarkup backEditRecs = new InlineKeyboardMarkup(
+        public static InlineKeyboardMarkup BackEditRecs()
+        {
+            List<Client> client = SerializationOfClient.Deserialization();
+            List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
+            for (int i = 0; i<client.Count; i++)
+            {
+                list.Add(new List<InlineKeyboardButton>());
+                list[i].Add(InlineKeyboardButton.WithCallbackData(client[i].DateTime.Day.ToString()+"."+ client[i].DateTime.Month.ToString()+"."+client[i].DateTime.Year.ToString(),"redaction"+" "+client[i].Id.ToString()));
+            }
+            list.Add(new List<InlineKeyboardButton>());
+            list[client.Count].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backEditRecs"));
+            return new InlineKeyboardMarkup(list);
+        }
+        //public static InlineKeyboardMarkup backEditRecs = new InlineKeyboardMarkup(
+        //    new List<InlineKeyboardButton[]>()
+        //    {
+        //            new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backEditRecs") }
+        //    });
+        public static InlineKeyboardMarkup editing = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
             {
-                    new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backEditRecs") }
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "recButton")
+                    },
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Удалить", "delete")
+                    },
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Назад ◀️", "backExistRecs") 
+                    }
+
             });
+        public static InlineKeyboardMarkup Editing(string id)
+        {
+            InlineKeyboardMarkup editing = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "recButton"+" "+id)
+                    },
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Удалить", "delete"+" "+id)
+                    },
+                    new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Назад ◀️", "backExistRecs")
+                    }
+
+            });
+            return editing;
+        }
         #endregion
     }
 }
