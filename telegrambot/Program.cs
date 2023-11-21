@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Runtime.Serialization.Json;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -282,6 +283,15 @@ namespace tgbot
             {
                 Console.WriteLine(ex.ToString());
             }
+        }
+        public static void Delete(string id)
+        {
+            _clients.Remove(_clients.Find(x => x.Id.ToString() == id));
+        }
+        public static void Change(string id,List<Client> clients)
+        {
+            _clients.Find(x => x.Id == long.Parse(id)).Time = clients.Find(x => x.Id == long.Parse(id)).Time;
+            _clients.Find(x => x.Id == long.Parse(id)).DateTime = clients.Find(x => x.Id == long.Parse(id)).DateTime;
         }
         private static async Task<Message> RequestContact(ITelegramBotClient botClient, ChatId chatId)
         {

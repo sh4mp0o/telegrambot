@@ -3,12 +3,14 @@ using System.Runtime.CompilerServices;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using tgbot;
 
 namespace telegrambot
 {
-    class Admin
+    internal class Admin
     {
-        public const int id = 1384604605;
+        private static List<Client> clients = new List<Client>();
+        public const long id = 5079754639;
         public static string idclient = null;
         public static async Task AdminUpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
@@ -99,21 +101,115 @@ namespace telegrambot
                                 {
                                     List<Client> clients = SerializationOfClient.Deserialization();
                                     clients.Remove(clients.Find(x => x.Id.ToString() == idclient));
+                                    Program.Delete(idclient);
                                     SerializationOfClient.Serialization(clients);
                                     goto case "editRecsButton";
                                 }
-                            //case "recButton":
-                            //    {
+                            case "recButton":
+                                {
+                                    Client client = new() { Id = long.Parse(idclient)};
+                                    clients.Add(client);
+                                    await botClient.EditMessageTextAsync(
+                                          chat.Id,
+                                          callbackQuery.Message.MessageId,
+                                          $"Выберите дату💅🏼",
+                                          replyMarkup: IKeyboards.Day(),
+                                          cancellationToken: cancellationToken);
 
-                            //        await botClient.EditMessageTextAsync(
-                            //              chat.Id,
-                            //              callbackQuery.Message.MessageId,
-                            //              $"Выберите дату и время 💅🏼",
-                            //              replyMarkup: IKeyboards.DayAndTime(),
-                            //              cancellationToken: cancellationToken);
+                                    return;
+                                }
+                            case "day":
+                                {
+                                    clients.Find(x => x.Id == long.Parse(idclient)).DateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
+                                    await botClient.EditMessageTextAsync(
+                                          chat.Id,
+                                          callbackQuery.Message.MessageId,
+                                          $"Выберите время💅🏼",
+                                          replyMarkup: IKeyboards.Time(long.Parse(idclient), clients),
+                                          cancellationToken: cancellationToken);
 
-                            //        return;
-                            //    }
+                                    return;
+                                }
+                            case "time":
+                                {
+                                    var day = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Day;
+                                    var month = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Month;
+                                    var time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
+
+                                    clients.Find(x => x.Id == long.Parse(idclient)).Time = callbackQuery.Data.Split().Last();
+
+                                    time = callbackQuery.Data.Split().Last();
+
+                                    await botClient.EditMessageTextAsync(
+                                        chat.Id,
+                                        callbackQuery.Message.MessageId,
+                                        $"Вы хотите записаться на {day}.{month}" +
+                                        $" в {time} " +
+                                        "Все верно?",
+                                        replyMarkup: IKeyboards.confirmKeyboard,
+                                        cancellationToken: cancellationToken);
+
+                                    return;
+                                }
+                            case "confirmButton":
+                                {
+                                    var day = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Day;
+                                    var month = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Month;
+                                    var time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
+
+                                    await botClient.AnswerCallbackQueryAsync(
+                                        callbackQuery.Id, $"Вы записаны на {day}.{month}" +
+                                        $" в {clients.Find(x => x.Id == long.Parse(idclient)).Time}!",
+                                        cancellationToken: cancellationToken);
+
+                                    List<Client> Clients = SerializationOfClient.Deserialization();
+                                    Clients.Find(x => x.Id == long.Parse(idclient)).Time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
+                                    Clients.Find(x => x.Id == long.Parse(idclient)).DateTime = clients.Find(x => x.Id == long.Parse(idclient)).DateTime;
+                                    clients.RemoveAt(0);
+                                    SerializationOfClient.Serialization(Clients);
+                                    goto case "editRecsButton";
+                                    //456518653 - id Егора
+                                    //1384604605 - id Матвея
+                                    //5079754639 - id Витали
+                                }
+                            case "backDays": //? alternative of backbutton from recording.cs
+                                {
+                                    try
+                                    {
+                                        clients.Remove(clients.Find(x => x.Id == long.Parse(idclient)));
+                                    }
+                                    catch (Exception) { }
+
+                                    goto case "redaction";
+                                }
+                            case "backTime":
+                                {
+                                    try
+                                    {
+                                        clients.Find(x => x.Id == long.Parse(idclient)).DateTime = DateTime.Today;
+                                    }
+                                    catch (Exception) { }
+                                    await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                        $"Выберите дату 💅🏼",
+                                        replyMarkup: IKeyboards.Day(),
+                                        cancellationToken: cancellationToken);
+
+                                    return;
+                                }
+                            case "backConfirm":
+                                {
+                                    try
+                                    {
+                                        clients.Find(x => x.Id == long.Parse(idclient)).Time = "Nah";
+                                    }
+                                    catch (Exception) { }
+                                    await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
+                                        $"Выберите время💅🏼",
+                                        replyMarkup: IKeyboards.Time(long.Parse(idclient), clients),
+                                        cancellationToken: cancellationToken);
+
+                                    return;
+                                }
                             case "backEditRecs":
                                 {
                                     goto case "backExistRecs";
