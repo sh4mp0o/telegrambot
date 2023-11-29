@@ -13,7 +13,6 @@ namespace telegrambot
         private string _time;
         private string _name;
         private long _id;
-        private Survey _survey;
         private bool _confirmation = false;
         private string _username;
         private string _phone;
@@ -51,7 +50,6 @@ namespace telegrambot
             set => _phone = value;
         }
         public bool Confirmation { set => _confirmation = value; get => _confirmation; }
-        public Survey Survey { get => _survey;}
 
         public int CompareTo(Client? other)
         {

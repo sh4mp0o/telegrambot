@@ -115,7 +115,7 @@ namespace telegrambot
             {
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "recButton")
+                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "redaction")
                     },
                     new InlineKeyboardButton[]
                     {
@@ -134,7 +134,7 @@ namespace telegrambot
             {
                     new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "recButton")
+                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "redaction")
                     },
                     new InlineKeyboardButton[]
                     {

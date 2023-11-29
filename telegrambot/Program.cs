@@ -9,11 +9,11 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using telegrambot;
 #pragma warning disable CS8602
-#pragma warning disable CS8600
+#pragma warning disable CS8604
 
 namespace tgbot
 {
-    internal class Program
+    internal class Program : IMethods
     {
         private static ITelegramBotClient? _botClient;
         private static ReceiverOptions? _receiverOptions;
@@ -39,7 +39,7 @@ namespace tgbot
 
             using var cts = new CancellationTokenSource();
 
-            _botClient.StartReceiving(UpdateHandler, ErrorHandler, _receiverOptions, cts.Token);
+            _botClient.StartReceiving(UpdateHandler, IMethods.ErrorHandler, _receiverOptions, cts.Token);
 
             var bot = await _botClient.GetMeAsync();
 
@@ -72,17 +72,14 @@ namespace tgbot
 
                                     if (message.From.Id == Admin.id)
                                     {
-                                        Admin.AdminUpdateHandler(botClient, update, cancellationToken);
+                                        _ = Admin.AdminUpdateHandler(botClient, update, cancellationToken);
+
                                         return;
                                     }
 
                                     if (message.Text == "/start")
                                     {
-                                        await botClient.SendTextMessageAsync(
-                                            chat.Id,
-                                            "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                                            replyMarkup: IKeyboards.mainMenu,
-                                            cancellationToken: cancellationToken);
+                                        _ = IMethods.StartAsync(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -92,18 +89,15 @@ namespace tgbot
                                         if (message.Type == MessageType.Contact && message.Contact != null && flag)
                                         {
                                             Console.WriteLine($"Phone number: {message.Contact.PhoneNumber}");
+
                                             _clients.Find(x => x.Id == update.Message.From.Id).Phone = message.Contact.PhoneNumber;
                                             SerializationOfClient.Serialization(_clients);
-                                            await botClient.SendContactAsync(
-                                                5079754639,
-                                                phoneNumber: message.Contact.PhoneNumber,
-                                                firstName: message.Contact.FirstName,
-                                                lastName: message.Contact.LastName,
-                                                vCard: message.Contact.Vcard,
-                                                cancellationToken: cancellationToken);
+
+                                            _ = IMethods.SendContactAsync(botClient, update, cancellationToken);
 
                                             flag = false;
                                         }
+
                                         return;
                                     }
                                 default: return;
@@ -114,7 +108,8 @@ namespace tgbot
 
                             if (update.CallbackQuery.From.Id == Admin.id)
                             {
-                                Admin.AdminUpdateHandler(botClient, update, cancellationToken);
+                                _ = Admin.AdminUpdateHandler(botClient, update, cancellationToken);
+
                                 return;
                             }
 
@@ -128,28 +123,19 @@ namespace tgbot
 
                             switch (callbackQuery.Data.Split().First())
                             {
-                                // Data - это придуманный нами id кнопки, мы его указывали в параметре
-                                // callbackData при создании кнопок. У меня это button1, button2 и button3
 
                                 case "recButton":
                                     {
                                         Client client = new() { Id = callbackQuery.From.Id, Username = chat.Username };
                                         _clients.Add(client);
 
-                                        await botClient.EditMessageTextAsync(
-                                              chat.Id,
-                                              callbackQuery.Message.MessageId,
-                                              $"Выберите дату 💅🏼",
-                                              replyMarkup: IKeyboards.Day(),
-                                              cancellationToken: cancellationToken);
+                                        _ = IMethods.CallRecButton(botClient, update, cancellationToken);
 
                                         return;
                                     }
                                 case "contactButton":
                                     {
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                            "Номер телефона - +7-930-117-58-31.\ntg: @Vita_lulu",
-                                            replyMarkup: IKeyboards.backContacts, cancellationToken: cancellationToken);
+                                        _ = IMethods.SendContactInfoAsync(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -157,23 +143,13 @@ namespace tgbot
                                     {
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
 
-                                        await botClient.EditMessageTextAsync(
-                                              chat.Id,
-                                              callbackQuery.Message.MessageId,
-                                              $"Выберите время💅🏼",
-                                              replyMarkup: IKeyboards.Time(callbackQuery.From.Id, _clients),
-                                              cancellationToken: cancellationToken);
+                                        _ = IMethods.ChooseDayAsync(botClient, update, cancellationToken, _clients);
 
                                         return;
                                     }
                                 case "backContacts":
                                     {
-                                        await botClient.EditMessageTextAsync(
-                                            chat.Id,
-                                            callbackQuery.Message.MessageId,
-                                            "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                                            replyMarkup: IKeyboards.mainMenu,
-                                            cancellationToken: cancellationToken);
+                                        _ = IMethods.BackContacts(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -185,7 +161,9 @@ namespace tgbot
                                         }
                                         catch (Exception) { }
 
-                                        goto case "backContacts";
+                                        _ = IMethods.BackContacts(botClient, update, cancellationToken);
+
+                                        return;
                                     }
                                 case "backTime":
                                     {
@@ -194,10 +172,8 @@ namespace tgbot
                                             _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Today;
                                         }
                                         catch (Exception) { }
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                            $"Выберите дату 💅🏼",
-                                            replyMarkup: IKeyboards.Day(),
-                                            cancellationToken: cancellationToken);
+                                        
+                                        _ = IMethods.CallRecButton(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -208,65 +184,24 @@ namespace tgbot
                                             _clients.Find(x => x.Id == callbackQuery.From.Id).Time = "Nah";
                                         }
                                         catch (Exception) { }
-                                        await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                            $"Выберите время💅🏼",
-                                            replyMarkup: IKeyboards.Time(callbackQuery.From.Id, _clients),
-                                            cancellationToken: cancellationToken);
+
+                                        _ = IMethods.ChooseDayAsync(botClient, update, cancellationToken, _clients);
 
                                         return;
                                     }
                                 case "time":
                                     {
-                                        var day = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day;
-                                        var month = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Month;
-                                        var time = _clients.Find(x => x.Id == callbackQuery.From.Id).Time;
-
-                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Time = callbackQuery.Data.Split().Last();
-
-                                        time = callbackQuery.Data.Split().Last();
-
-                                        await botClient.EditMessageTextAsync(
-                                            chat.Id,
-                                            callbackQuery.Message.MessageId,
-                                            $"Вы хотите записаться на {day}.{month}" +
-                                            $" в {time} " +
-                                            "Все верно?",
-                                            replyMarkup: IKeyboards.confirmKeyboard,
-                                            cancellationToken: cancellationToken);
+                                        _ = IMethods.ConfirmationQuest(botClient, update, cancellationToken, _clients);
 
                                         return;
                                     }
                                 case "confirmButton":
                                     {
-                                        var day = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Day;
-                                        var month = _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime.Month;
-                                        var time = _clients.Find(x => x.Id == callbackQuery.From.Id).Time;
-
                                         flag = true;
 
-                                        await botClient.AnswerCallbackQueryAsync(
-                                            callbackQuery.Id, $"Вы записаны на {day}.{month}" +
-                                            $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!",
-                                            cancellationToken: cancellationToken);
+                                        _ = IMethods.Confirmation(botClient, update, cancellationToken, _clients);
 
-                                        _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
-
-                                        await botClient.SendTextMessageAsync(
-                                            1384604605,
-                                            $"Привет, у тебя новый клиент! Его зовут @{callbackQuery.Message.Chat.Username}," +
-                                            $" он записался на {day}." +
-                                            $"{month} в {time}.",
-                                            cancellationToken: cancellationToken);
-
-                                        await botClient.EditMessageTextAsync(
-                                            chat.Id,
-                                            callbackQuery.Message.MessageId,
-                                            $"Вы записаны на {day}.{month} в {time}!" +
-                                            "\nНомер телефона - +7-930-117-58-31." +
-                                            "\nЧтобы перезапустить бота, напишите - /start.",
-                                            cancellationToken: cancellationToken);
-
-                                        _ = RequestContact(botClient, callbackQuery.Message.Chat.Id);
+                                        _ = IMethods.RequestContact(botClient, callbackQuery.Message.Chat.Id);
                                         //456518653 - id Егора
                                         //1384604605 - id Матвея
                                         //5079754639 - id Витали
@@ -292,32 +227,6 @@ namespace tgbot
         {
             _clients.Find(x => x.Id == long.Parse(id)).Time = clients.Find(x => x.Id == long.Parse(id)).Time;
             _clients.Find(x => x.Id == long.Parse(id)).DateTime = clients.Find(x => x.Id == long.Parse(id)).DateTime;
-        }
-        private static async Task<Message> RequestContact(ITelegramBotClient botClient, ChatId chatId)
-        {
-            var contact = new ReplyKeyboardMarkup(KeyboardButton.WithRequestContact("Поделиться номером телефона"))
-            {
-                ResizeKeyboard = true,
-                //contact.InputFieldPlaceholder = "smth",
-                OneTimeKeyboard = true
-            };
-
-            return await botClient.SendTextMessageAsync(chatId: chatId,
-                                                        text: "Пожалуйста, поделитесь номером телефона.",
-                                                        replyMarkup: contact);
-        }
-
-        private static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
-        {
-            var ErrorMessage = error switch
-            {
-                ApiRequestException apiRequestException
-                => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
-                _ => error.ToString()
-            };
-
-            Console.WriteLine(ErrorMessage);
-            return Task.CompletedTask;
         }
     }
 }
