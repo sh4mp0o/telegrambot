@@ -16,9 +16,10 @@ namespace telegrambot
     static internal class Check
     {
         private static List<Client>? _client;
+        private static SerializationOfClient serializationOfClient = new SerializationOfClient(new JSONSerialization());
         static public string KeyboardDay(int i)
         {
-            _client = SerializationOfClient.Deserialization();
+            _client = serializationOfClient.Deserialization();
             DateTime _date = new DateTime();
             _date = DateTime.Today.AddDays(i);
             int count = _client.FindAll(x => x.DateTime.Day == DateTime.Today.AddDays(i).Day).Count;
@@ -68,7 +69,7 @@ namespace telegrambot
         {
             DateTime _date = new DateTime();
             DateTime _dateTime = new DateTime(2023,10,24,10,0,0);
-            _client = SerializationOfClient.Deserialization();
+            _client = serializationOfClient.Deserialization();
             _date = clients.Find(x => x.Id == id).DateTime;
             List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
             if (_date.DayOfWeek == DayOfWeek.Sunday || _date.DayOfWeek == DayOfWeek.Saturday)
@@ -100,7 +101,7 @@ namespace telegrambot
         }
         static public string KeyboardTime(string time,DateTime date)
         {
-            _client = SerializationOfClient.Deserialization();
+            _client = serializationOfClient.Deserialization();
             if (_client.Exists(x => x.DateTime.Day == date.Day && x.Time == time+":00"))
             {
                 return "false";

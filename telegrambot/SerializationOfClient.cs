@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace telegrambot
 {
-    internal class SerializationOfClient
+    interface ISerialization
     {
-        static public void Serialization(List<Client> _clients)
+        void Serialization(List<Client> _clients);
+        List<Client> Deserialization();
+    }
+    internal class JSONSerialization : ISerialization
+    {
+
+        public void Serialization(List<Client> _clients)
         {
             var clientsindification = from clients in _clients where (clients.Confirmation == true) select clients;
 
@@ -19,9 +25,9 @@ namespace telegrambot
                 json.WriteObject(fstream, clientsindification);
             }
         }
-        static public List<Client> Deserialization()
+        public List<Client> Deserialization()
         {
-            List<Client> _client; 
+            List<Client> _client;
             var json = new DataContractJsonSerializer(typeof(List<Client>));
             try
             {
@@ -32,6 +38,25 @@ namespace telegrambot
             }
             catch (Exception) { _client = new(); }
             return _client;
+        }
+    }
+    internal class SerializationOfClient
+    {
+        public ISerialization ContextStrategy { get; set; }
+
+        public List<Client> Clients { get; set; }
+        public SerializationOfClient(ISerialization _strategy)
+        {
+            ContextStrategy = _strategy;
+        }
+
+        public void Serialization(List<Client> _clients)
+        {
+            ContextStrategy.Serialization(_clients);
+        }
+        public List<Client> Deserialization()
+        {
+            return ContextStrategy.Deserialization();
         }
     }
 }

@@ -10,8 +10,9 @@ namespace telegrambot
     internal class Admin
     {
         private static List<Client> clients = new List<Client>();
-        public const long id = 5079754639;
+        public const long id = 1384604605;
         public static string idclient = null;
+        private static SerializationOfClient serializationOfClient = new SerializationOfClient(new JSONSerialization());
         public static async Task AdminUpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var message = update.Message;
@@ -50,7 +51,7 @@ namespace telegrambot
                         {
                             case "existRecsButton":
                                 {
-                                    List<Client> clients = SerializationOfClient.Deserialization();
+                                    List<Client> clients = serializationOfClient.Deserialization();
                                     clients.Sort();
                                     string text = null;
                                     text += "Список записанных клиентов:\n";
@@ -99,10 +100,10 @@ namespace telegrambot
                                 }
                             case "delete":
                                 {
-                                    List<Client> clients = SerializationOfClient.Deserialization();
+                                    List<Client> clients = serializationOfClient.Deserialization();
                                     clients.Remove(clients.Find(x => x.Id.ToString() == idclient));
                                     Program.Delete(idclient);
-                                    SerializationOfClient.Serialization(clients);
+                                    serializationOfClient.Serialization(clients);
                                     goto case "editRecsButton";
                                 }
                             case "recButton":
@@ -162,11 +163,11 @@ namespace telegrambot
                                         $" в {clients.Find(x => x.Id == long.Parse(idclient)).Time}!",
                                         cancellationToken: cancellationToken);
 
-                                    List<Client> Clients = SerializationOfClient.Deserialization();
+                                    List<Client> Clients = serializationOfClient.Deserialization();
                                     Clients.Find(x => x.Id == long.Parse(idclient)).Time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
                                     Clients.Find(x => x.Id == long.Parse(idclient)).DateTime = clients.Find(x => x.Id == long.Parse(idclient)).DateTime;
                                     clients.RemoveAt(0);
-                                    SerializationOfClient.Serialization(Clients);
+                                    serializationOfClient.Serialization(Clients);
                                     goto case "editRecsButton";
                                     //456518653 - id Егора
                                     //1384604605 - id Матвея

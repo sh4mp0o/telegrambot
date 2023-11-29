@@ -19,13 +19,12 @@ namespace tgbot
         private static ReceiverOptions? _receiverOptions;
         private static List<Client>? _clients;
         static bool flag = false;
-
+        private static SerializationOfClient serializationOfClient = new SerializationOfClient(new JSONSerialization());
 
         static async Task Main()
         {
             _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // TOKEN HERE
-
-            _clients = SerializationOfClient.Deserialization();
+            _clients = serializationOfClient.Deserialization();
 
             _receiverOptions = new ReceiverOptions // bot settings
             {
@@ -91,7 +90,8 @@ namespace tgbot
                                             Console.WriteLine($"Phone number: {message.Contact.PhoneNumber}");
 
                                             _clients.Find(x => x.Id == update.Message.From.Id).Phone = message.Contact.PhoneNumber;
-                                            SerializationOfClient.Serialization(_clients);
+                                            serializationOfClient.Serialization(_clients);
+                                            //SerializationOfClient.Serialization(_clients);
 
                                             _ = IMethods.SendContactAsync(botClient, update, cancellationToken);
 

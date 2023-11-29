@@ -94,7 +94,8 @@ namespace telegrambot
         //Admin editing records menu
         public static InlineKeyboardMarkup BackEditRecs()
         {
-            List<Client> client = SerializationOfClient.Deserialization();
+            SerializationOfClient serializationOfClient = new SerializationOfClient(new JSONSerialization());
+            List<Client> client = serializationOfClient.Deserialization();
             List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
             for (int i = 0; i<client.Count; i++)
             {
