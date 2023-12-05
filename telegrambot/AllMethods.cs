@@ -23,7 +23,7 @@ namespace telegrambot
             var message = update.Message;
 
             await botClient.SendContactAsync(
-                456518653,
+                Admin.id,
                 phoneNumber: message.Contact.PhoneNumber,
                 firstName: message.Contact.FirstName,
                 lastName: message.Contact.LastName,
@@ -117,7 +117,7 @@ namespace telegrambot
             _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
 
             await botClient.SendTextMessageAsync(
-                456518653, //Admin.id
+                Admin.id, //Admin.id
                 $"Привет, у тебя новый клиент! Его зовут @{callbackQuery.Message.Chat.Username}," +
                 $" он записался на {day}." +
             $"{month} в {time}.",
