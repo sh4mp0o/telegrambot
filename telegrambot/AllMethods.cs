@@ -24,19 +24,18 @@ namespace telegrambot
         {
             var message = update.Message;
 
-            await botClient.SendContactAsync(
-                Admin.id,
-                phoneNumber: message.Contact.PhoneNumber,
-                firstName: message.Contact.FirstName,
-                lastName: message.Contact.LastName,
-                vCard: message.Contact.Vcard,
-                cancellationToken: cancellationToken);
+            var chat = message.Chat;
 
             var day = _clients.Find(x => x.Id == update.Message.From.Id).DateTime.Day;
             var month = _clients.Find(x => x.Id == update.Message.From.Id).DateTime.Month;
             var time = _clients.Find(x => x.Id == update.Message.From.Id).Time;
 
-            var chat = update.Message.Chat;
+            await botClient.SendTextMessageAsync(
+                chat.Id,
+                $"Вы записаны на {day}.{month} в {time}!" +
+                "\nНомер телефона - +7-930-117-58-31." +
+                "\nЧтобы перезапустить бота, напишите - /start.",
+                cancellationToken: cancellationToken);
 
             await botClient.SendTextMessageAsync(
                 Admin.id, //Admin.id
@@ -45,11 +44,12 @@ namespace telegrambot
             $"{month} в {time}.",
                 cancellationToken: cancellationToken);
 
-            await botClient.SendTextMessageAsync(
-                chat.Id,
-                $"Вы записаны на {day}.{month} в {time}!" +
-                "\nНомер телефона - +7-930-117-58-31." +
-                "\nЧтобы перезапустить бота, напишите - /start.",
+            await botClient.SendContactAsync(
+                Admin.id,
+                phoneNumber: message.Contact.PhoneNumber,
+                firstName: message.Contact.FirstName,
+                lastName: message.Contact.LastName,
+                vCard: message.Contact.Vcard,
                 cancellationToken: cancellationToken);
         }
         static async Task CallRecButton(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
