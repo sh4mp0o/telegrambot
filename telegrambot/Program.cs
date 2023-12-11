@@ -48,9 +48,6 @@ namespace tgbot
         }
         private static async Task UpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            //TODO попробовать описать логичнее удаление предыдущего сообщения, иначе могут возникнуть коллизии после первой итерации, через botMessage.Id
-            //TODO реализовать более унифицированный и лакончиный код
-
             try
             {
                 var message = update.Message;
@@ -93,7 +90,7 @@ namespace tgbot
                                             serializationOfClient.Serialization(_clients);
                                             //SerializationOfClient.Serialization(_clients);
 
-                                            _ = IMethods.SendContactAsync(botClient, update, cancellationToken);
+                                            _ = IMethods.SendContactAsync(botClient, update, cancellationToken, _clients);
 
                                             flag = false;
                                         }

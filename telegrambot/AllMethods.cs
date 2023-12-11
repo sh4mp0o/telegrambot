@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using System;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -18,7 +19,7 @@ namespace telegrambot
                 replyMarkup: IKeyboards.mainMenu,
                 cancellationToken: cancellationToken);
         }
-        static async Task SendContactAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        static async Task SendContactAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
         {
             var message = update.Message;
 
@@ -28,6 +29,26 @@ namespace telegrambot
                 firstName: message.Contact.FirstName,
                 lastName: message.Contact.LastName,
                 vCard: message.Contact.Vcard,
+                cancellationToken: cancellationToken);
+
+            var day = _clients.Find(x => x.Id == update.Message.From.Id).DateTime.Day;
+            var month = _clients.Find(x => x.Id == update.Message.From.Id).DateTime.Month;
+            var time = _clients.Find(x => x.Id == update.Message.From.Id).Time;
+
+            var chat = update.Message.Chat;
+
+            await botClient.SendTextMessageAsync(
+                Admin.id, //Admin.id
+                $"Привет, у тебя новый клиент! Его зовут @{update.Message.Chat.Username}," +
+                $" он записался на {day}." +
+            $"{month} в {time}.",
+                cancellationToken: cancellationToken);
+
+            await botClient.SendTextMessageAsync(
+                chat.Id,
+                $"Вы записаны на {day}.{month} в {time}!" +
+                "\nНомер телефона - +7-930-117-58-31." +
+                "\nЧтобы перезапустить бота, напишите - /start.",
                 cancellationToken: cancellationToken);
         }
         static async Task CallRecButton(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -110,26 +131,11 @@ namespace telegrambot
             var time = _clients.Find(x => x.Id == callbackQuery.From.Id).Time;
 
             await botClient.AnswerCallbackQueryAsync(
-                callbackQuery.Id, $"Вы записаны на {day}.{month}" +
+                callbackQuery.Id, $"{day}.{month}" +
                 $" в {_clients.Find(x => x.Id == callbackQuery.From.Id).Time}!",
                 cancellationToken: cancellationToken);
 
             _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
-
-            await botClient.SendTextMessageAsync(
-                Admin.id, //Admin.id
-                $"Привет, у тебя новый клиент! Его зовут @{callbackQuery.Message.Chat.Username}," +
-                $" он записался на {day}." +
-            $"{month} в {time}.",
-                cancellationToken: cancellationToken);
-
-            await botClient.EditMessageTextAsync(
-                chat.Id,
-                callbackQuery.Message.MessageId,
-                $"Вы записаны на {day}.{month} в {time}!" +
-                "\nНомер телефона - +7-930-117-58-31." +
-                "\nЧтобы перезапустить бота, напишите - /start.",
-                cancellationToken: cancellationToken);
         }
         static async Task<Message> RequestContact(ITelegramBotClient botClient, ChatId chatId)
         {
@@ -142,7 +148,8 @@ namespace telegrambot
 
             return await botClient.SendTextMessageAsync(
                 chatId: chatId,
-                text: "Пожалуйста, поделитесь номером телефона.",
+                text: "Пожалуйста, поделитесь номером телефона,\n" +
+                "используя встроенную клавиатуру Telegram ниже ↓",
                 replyMarkup: contact);
         }
         #endregion

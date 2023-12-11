@@ -10,7 +10,7 @@ namespace telegrambot
     internal class Admin
     {
         private static List<Client> clients = new List<Client>();
-        public const long id = 1384604605;
+        public const long id = 456518653;
         public static string idclient = null;
         private static SerializationOfClient serializationOfClient = new SerializationOfClient(new JSONSerialization());
         public static async Task AdminUpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
