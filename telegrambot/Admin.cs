@@ -1,9 +1,13 @@
-﻿using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using tgbot;
+
+
+//456518653 - id Егора
+//1384604605 - id Матвея
+//5079754639 - id Витали
 
 namespace telegrambot
 {
@@ -28,11 +32,7 @@ namespace telegrambot
                         {
                             if (message.Text == "/start")
                             {
-                                await botClient.SendTextMessageAsync(
-                                    chat.Id,
-                                    "Приветствую, Админ!",
-                                    replyMarkup: IKeyboards.adminMainMenu,
-                                    cancellationToken: cancellationToken);
+                                _ = IMethods.AdminStartUp(botClient, update, cancellationToken);
                             }
                         }
                         return;
@@ -53,49 +53,29 @@ namespace telegrambot
                                 {
                                     List<Client> clients = serializationOfClient.Deserialization();
                                     clients.Sort();
-                                    string text = null;
-                                    text += "Список записанных клиентов:\n";
-                                    for (int i=0; i<clients.Count; i++)
-                                    {
-                                        text += clients[i].Phone+" " + clients[i].Username +" "+ clients[i].DateTime.Day.ToString()+"." + clients[i].DateTime.Month +" "+ clients[i].Time + "\n"; 
-                                    }
-                                    await botClient.EditMessageTextAsync(
-                                          chat.Id,
-                                          callbackQuery.Message.MessageId,
-                                          text:text,
-                                          replyMarkup: IKeyboards.backExistRecs,
-                                          cancellationToken: cancellationToken);
+
+                                    _ = IMethods.ExitRecs(botClient, update, cancellationToken, clients);
+
                                     return;
                                 }
                             case "editRecsButton":
                                 {
-                                    await botClient.EditMessageTextAsync(
-                                          chat.Id,
-                                          callbackQuery.Message.MessageId,
-                                          $"Выберите клиента, чтобы отредактировать его запись",
-                                          replyMarkup: IKeyboards.BackEditRecs(),
-                                          cancellationToken: cancellationToken);
+                                    _ = IMethods.EditRecs(botClient, update, cancellationToken);
+
                                     return;
                                 }
                             case "backExistRecs":
                                 {
-                                    await botClient.EditMessageTextAsync(
-                                        chat.Id,
-                                        callbackQuery.Message.MessageId,
-                                        "Приветствую, Админ!",
-                                        replyMarkup: IKeyboards.adminMainMenu,
-                                        cancellationToken: cancellationToken);
+                                    _ = IMethods.BackToStart(botClient, update, cancellationToken);
+
                                     return;
                                 }
                             case "redaction":
                                 {
                                     idclient = callbackQuery.Data.Split().Last();
-                                    await botClient.EditMessageTextAsync(
-                                        chat.Id,
-                                        callbackQuery.Message.MessageId,
-                                        "Выберите как хотите отредактировать:",
-                                        replyMarkup: IKeyboards.Editing(),
-                                        cancellationToken: cancellationToken);
+
+                                    _ = IMethods.Redaction(botClient, update, cancellationToken);
+
                                     return;
                                 }
                             case "delete":
@@ -104,74 +84,48 @@ namespace telegrambot
                                     clients.Remove(clients.Find(x => x.Id.ToString() == idclient));
                                     Program.Delete(idclient);
                                     serializationOfClient.Serialization(clients);
-                                    goto case "editRecsButton";
+
+                                    _ = IMethods.EditRecs(botClient, update, cancellationToken);
+
+                                    return;
                                 }
                             case "recButton":
                                 {
-                                    Client client = new() { Id = long.Parse(idclient)};
+                                    Client client = new() { Id = long.Parse(idclient) };
                                     clients.Add(client);
-                                    await botClient.EditMessageTextAsync(
-                                          chat.Id,
-                                          callbackQuery.Message.MessageId,
-                                          $"Выберите дату💅🏼",
-                                          replyMarkup: IKeyboards.Day(),
-                                          cancellationToken: cancellationToken);
+
+                                    _ = IMethods.RecordRedaction(botClient, update, cancellationToken);
 
                                     return;
                                 }
                             case "day":
                                 {
                                     clients.Find(x => x.Id == long.Parse(idclient)).DateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
-                                    await botClient.EditMessageTextAsync(
-                                          chat.Id,
-                                          callbackQuery.Message.MessageId,
-                                          $"Выберите время💅🏼",
-                                          replyMarkup: IKeyboards.Time(long.Parse(idclient), clients),
-                                          cancellationToken: cancellationToken);
+                                    InlineKeyboardMarkup kb = IKeyboards.Time(long.Parse(idclient), clients);
+
+                                    _ = IMethods.DayRedaction(botClient, update, cancellationToken, kb);
 
                                     return;
                                 }
                             case "time":
                                 {
-                                    var day = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Day;
-                                    var month = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Month;
-                                    var time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
-
-                                    clients.Find(x => x.Id == long.Parse(idclient)).Time = callbackQuery.Data.Split().Last();
-
-                                    time = callbackQuery.Data.Split().Last();
-
-                                    await botClient.EditMessageTextAsync(
-                                        chat.Id,
-                                        callbackQuery.Message.MessageId,
-                                        $"Вы хотите записаться на {day}.{month}" +
-                                        $" в {time} " +
-                                        "Все верно?",
-                                        replyMarkup: IKeyboards.confirmKeyboard,
-                                        cancellationToken: cancellationToken);
+                                    _ = IMethods.TimeRedaction(botClient, update, cancellationToken, clients, idclient);
 
                                     return;
                                 }
                             case "confirmButton":
                                 {
-                                    var day = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Day;
-                                    var month = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Month;
-                                    var time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
-
-                                    await botClient.AnswerCallbackQueryAsync(
-                                        callbackQuery.Id, $"Вы записаны на {day}.{month}" +
-                                        $" в {clients.Find(x => x.Id == long.Parse(idclient)).Time}!",
-                                        cancellationToken: cancellationToken);
+                                    _ = IMethods.AdminConfirmation(botClient, update, cancellationToken, clients, idclient);
 
                                     List<Client> Clients = serializationOfClient.Deserialization();
                                     Clients.Find(x => x.Id == long.Parse(idclient)).Time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
                                     Clients.Find(x => x.Id == long.Parse(idclient)).DateTime = clients.Find(x => x.Id == long.Parse(idclient)).DateTime;
                                     clients.RemoveAt(0);
                                     serializationOfClient.Serialization(Clients);
-                                    goto case "editRecsButton";
-                                    //456518653 - id Егора
-                                    //1384604605 - id Матвея
-                                    //5079754639 - id Витали
+
+                                    _ = IMethods.EditRecs(botClient, update, cancellationToken);
+
+                                    return;
                                 }
                             case "backDays": //? alternative of backbutton from recording.cs
                                 {
@@ -181,7 +135,11 @@ namespace telegrambot
                                     }
                                     catch (Exception) { }
 
-                                    goto case "redaction";
+                                    idclient = callbackQuery.Data.Split().Last();
+
+                                    _ = IMethods.Redaction(botClient, update, cancellationToken);
+
+                                    return;
                                 }
                             case "backTime":
                                 {
@@ -190,10 +148,8 @@ namespace telegrambot
                                         clients.Find(x => x.Id == long.Parse(idclient)).DateTime = DateTime.Today;
                                     }
                                     catch (Exception) { }
-                                    await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                        $"Выберите дату 💅🏼",
-                                        replyMarkup: IKeyboards.Day(),
-                                        cancellationToken: cancellationToken);
+
+                                    _ = IMethods.RecordRedaction(botClient, update, cancellationToken);
 
                                     return;
                                 }
@@ -204,16 +160,18 @@ namespace telegrambot
                                         clients.Find(x => x.Id == long.Parse(idclient)).Time = "Nah";
                                     }
                                     catch (Exception) { }
-                                    await botClient.EditMessageTextAsync(chat.Id, callbackQuery.Message.MessageId,
-                                        $"Выберите время💅🏼",
-                                        replyMarkup: IKeyboards.Time(long.Parse(idclient), clients),
-                                        cancellationToken: cancellationToken);
+
+                                    InlineKeyboardMarkup kb = IKeyboards.Time(long.Parse(idclient), clients);
+
+                                    _ = IMethods.DayRedaction(botClient, update, cancellationToken, kb);
 
                                     return;
                                 }
                             case "backEditRecs":
                                 {
-                                    goto case "backExistRecs";
+                                    _ = IMethods.BackToStart(botClient, update, cancellationToken);
+
+                                    return;
                                 }
                         }
                         return;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -154,7 +155,139 @@ namespace telegrambot
         }
         #endregion
         #region ADMIN'S PART
+        static async Task AdminStartUp(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            var message = update.Message;
 
+            var chat = message.Chat;
+
+            await botClient.SendTextMessageAsync(
+                chat.Id,
+                "Приветствую, Админ!",
+                replyMarkup: IKeyboards.adminMainMenu,
+                cancellationToken: cancellationToken);
+        }
+        static async Task ExitRecs(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients)
+        {
+            string text = null;
+            text += "Список записанных клиентов:\n";
+
+            for (int i = 0; i < clients.Count; i++)
+            {
+                text += clients[i].Phone + " "
+                    + clients[i].Username + " "
+                    + clients[i].DateTime.Day.ToString() + "."
+                    + clients[i].DateTime.Month + " "
+                    + clients[i].Time + "\n";
+            }
+
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            await botClient.EditMessageTextAsync(
+                  chat.Id,
+                  callbackQuery.Message.MessageId,
+                  text: text,
+                  replyMarkup: IKeyboards.backExistRecs,
+                  cancellationToken: cancellationToken);
+        }
+        static async Task EditRecs(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            await botClient.EditMessageTextAsync(
+                  chat.Id,
+                  callbackQuery.Message.MessageId,
+                  $"Выберите клиента, чтобы отредактировать его запись",
+                  replyMarkup: IKeyboards.BackEditRecs(),
+                  cancellationToken: cancellationToken);
+        }
+        static async Task Redaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            await botClient.EditMessageTextAsync(
+                chat.Id,
+                callbackQuery.Message.MessageId,
+                "Выберите, как хотите отредактировать:",
+                replyMarkup: IKeyboards.Editing(),
+                cancellationToken: cancellationToken);
+        }
+        static async Task RecordRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            await botClient.EditMessageTextAsync(
+                  chat.Id,
+                  callbackQuery.Message.MessageId,
+                  $"Выберите дату💅🏼",
+                  replyMarkup: IKeyboards.Day(),
+                  cancellationToken: cancellationToken);
+        }
+        static async Task DayRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, InlineKeyboardMarkup kb)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            await botClient.EditMessageTextAsync(
+                  chat.Id,
+                  callbackQuery.Message.MessageId,
+                  $"Выберите время💅🏼",
+                  replyMarkup: kb,
+                  cancellationToken: cancellationToken);
+        }
+        static async Task TimeRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients, string idclient)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            clients.Find(x => x.Id == long.Parse(idclient)).Time = callbackQuery.Data.Split().Last();
+
+            var day = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Day;
+            var month = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Month;
+            var time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
+
+            time = callbackQuery.Data.Split().Last();
+
+            await botClient.EditMessageTextAsync(
+                chat.Id,
+                callbackQuery.Message.MessageId,
+                $"Вы хотите записаться на {day}.{month}" +
+                $" в {time} " +
+                "Все верно?",
+                replyMarkup: IKeyboards.confirmKeyboard,
+                cancellationToken: cancellationToken);
+
+        }
+        static async Task BackToStart(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            await botClient.EditMessageTextAsync(
+                chat.Id,
+                callbackQuery.Message.MessageId,
+                "Приветствую, Админ!",
+                replyMarkup: IKeyboards.adminMainMenu,
+                cancellationToken: cancellationToken);
+        }
+        static async Task AdminConfirmation(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients, string idclient)
+        {
+            var callbackQuery = update.CallbackQuery;
+            var chat = callbackQuery.Message.Chat;
+
+            var day = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Day;
+            var month = clients.Find(x => x.Id == long.Parse(idclient)).DateTime.Month;
+            var time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
+
+            await botClient.AnswerCallbackQueryAsync(
+                callbackQuery.Id, $"Вы записаны на {day}.{month}" +
+                $" в {clients.Find(x => x.Id == long.Parse(idclient)).Time}!",
+                cancellationToken: cancellationToken);
+        }
         #endregion
         static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
         {
