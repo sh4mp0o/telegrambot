@@ -7,7 +7,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace telegrambot
 {
-    interface IKeyboards
+    static class Keyboards
     {
         #region CLIENT
 
@@ -82,8 +82,6 @@ namespace telegrambot
                         InlineKeyboardButton.WithCallbackData("Редактировать записи", "editRecsButton"),
                     },
             });
-
-        //TODO make keyboard and logic for admin stuff ↓
         //Admin existing records menu
         public static InlineKeyboardMarkup backExistRecs = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
@@ -106,28 +104,6 @@ namespace telegrambot
             list[client.Count].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backEditRecs"));
             return new InlineKeyboardMarkup(list);
         }
-        //public static InlineKeyboardMarkup backEditRecs = new InlineKeyboardMarkup(
-        //    new List<InlineKeyboardButton[]>()
-        //    {
-        //            new InlineKeyboardButton[]{InlineKeyboardButton.WithCallbackData("Назад ◀️", "backEditRecs") }
-        //    });
-        public static InlineKeyboardMarkup editing = new InlineKeyboardMarkup(
-            new List<InlineKeyboardButton[]>()
-            {
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Редактировать дату и время", "redaction")
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Удалить", "delete")
-                    },
-                    new InlineKeyboardButton[]
-                    {
-                        InlineKeyboardButton.WithCallbackData("Назад ◀️", "backExistRecs") 
-                    }
-
-            });
         public static InlineKeyboardMarkup Editing()
         {
             InlineKeyboardMarkup editing = new InlineKeyboardMarkup(
@@ -149,11 +125,6 @@ namespace telegrambot
             });
             return editing;
         }
-        //public static InlineKeyboardMarkup DayAndTime()
-        //{
-        //    List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
-
-        //}
         #endregion
     }
 }

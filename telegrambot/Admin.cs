@@ -4,17 +4,12 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using tgbot;
 
-
-//456518653 - id Егора
-//1384604605 - id Матвея
-//5079754639 - id Витали
-
 namespace telegrambot
 {
-    internal class Admin
+    internal static class Admin
     {
         private static List<Client> clients = new List<Client>();
-        public const long id = 456518653;
+        public const long id = 1384604605;
         public static string idclient = null;
         private static SerializationOfClient serializationOfClient = new SerializationOfClient(new JSONSerialization());
         public static async Task AdminUpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -32,7 +27,7 @@ namespace telegrambot
                         {
                             if (message.Text == "/start")
                             {
-                                _ = IMethods.AdminStartUp(botClient, update, cancellationToken);
+                                _ = Methods.AdminStartUp(botClient, update, cancellationToken);
                             }
                         }
                         return;
@@ -54,19 +49,19 @@ namespace telegrambot
                                     List<Client> clients = serializationOfClient.Deserialization();
                                     clients.Sort();
 
-                                    _ = IMethods.ExitRecs(botClient, update, cancellationToken, clients);
+                                    _ = Methods.ExitRecs(botClient, update, cancellationToken, clients);
 
                                     return;
                                 }
                             case "editRecsButton":
                                 {
-                                    _ = IMethods.EditRecs(botClient, update, cancellationToken);
+                                    _ = Methods.EditRecs(botClient, update, cancellationToken);
 
                                     return;
                                 }
                             case "backExistRecs":
                                 {
-                                    _ = IMethods.BackToStart(botClient, update, cancellationToken);
+                                    _ = Methods.BackToStart(botClient, update, cancellationToken);
 
                                     return;
                                 }
@@ -74,7 +69,7 @@ namespace telegrambot
                                 {
                                     idclient = callbackQuery.Data.Split().Last();
 
-                                    _ = IMethods.Redaction(botClient, update, cancellationToken);
+                                    _ = Methods.Redaction(botClient, update, cancellationToken);
 
                                     return;
                                 }
@@ -85,7 +80,7 @@ namespace telegrambot
                                     Program.Delete(idclient);
                                     serializationOfClient.Serialization(clients);
 
-                                    _ = IMethods.EditRecs(botClient, update, cancellationToken);
+                                    _ = Methods.EditRecs(botClient, update, cancellationToken);
 
                                     return;
                                 }
@@ -94,28 +89,28 @@ namespace telegrambot
                                     Client client = new() { Id = long.Parse(idclient) };
                                     clients.Add(client);
 
-                                    _ = IMethods.RecordRedaction(botClient, update, cancellationToken);
+                                    _ = Methods.RecordRedaction(botClient, update, cancellationToken);
 
                                     return;
                                 }
                             case "day":
                                 {
                                     clients.Find(x => x.Id == long.Parse(idclient)).DateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
-                                    InlineKeyboardMarkup kb = IKeyboards.Time(long.Parse(idclient), clients);
+                                    InlineKeyboardMarkup kb = Keyboards.Time(long.Parse(idclient), clients);
 
-                                    _ = IMethods.DayRedaction(botClient, update, cancellationToken, kb);
+                                    _ = Methods.DayRedaction(botClient, update, cancellationToken, kb);
 
                                     return;
                                 }
                             case "time":
                                 {
-                                    _ = IMethods.TimeRedaction(botClient, update, cancellationToken, clients, idclient);
+                                    _ = Methods.TimeRedaction(botClient, update, cancellationToken, clients, idclient);
 
                                     return;
                                 }
                             case "confirmButton":
                                 {
-                                    _ = IMethods.AdminConfirmation(botClient, update, cancellationToken, clients, idclient);
+                                    _ = Methods.AdminConfirmation(botClient, update, cancellationToken, clients, idclient);
 
                                     List<Client> Clients = serializationOfClient.Deserialization();
                                     Clients.Find(x => x.Id == long.Parse(idclient)).Time = clients.Find(x => x.Id == long.Parse(idclient)).Time;
@@ -123,11 +118,11 @@ namespace telegrambot
                                     clients.RemoveAt(0);
                                     serializationOfClient.Serialization(Clients);
 
-                                    _ = IMethods.EditRecs(botClient, update, cancellationToken);
+                                    _ = Methods.EditRecs(botClient, update, cancellationToken);
 
                                     return;
                                 }
-                            case "backDays": //? alternative of backbutton from recording.cs
+                            case "backDays": 
                                 {
                                     try
                                     {
@@ -137,7 +132,7 @@ namespace telegrambot
 
                                     idclient = callbackQuery.Data.Split().Last();
 
-                                    _ = IMethods.Redaction(botClient, update, cancellationToken);
+                                    _ = Methods.Redaction(botClient, update, cancellationToken);
 
                                     return;
                                 }
@@ -149,7 +144,7 @@ namespace telegrambot
                                     }
                                     catch (Exception) { }
 
-                                    _ = IMethods.RecordRedaction(botClient, update, cancellationToken);
+                                    _ = Methods.RecordRedaction(botClient, update, cancellationToken);
 
                                     return;
                                 }
@@ -161,15 +156,15 @@ namespace telegrambot
                                     }
                                     catch (Exception) { }
 
-                                    InlineKeyboardMarkup kb = IKeyboards.Time(long.Parse(idclient), clients);
+                                    InlineKeyboardMarkup kb = Keyboards.Time(long.Parse(idclient), clients);
 
-                                    _ = IMethods.DayRedaction(botClient, update, cancellationToken, kb);
+                                    _ = Methods.DayRedaction(botClient, update, cancellationToken, kb);
 
                                     return;
                                 }
                             case "backEditRecs":
                                 {
-                                    _ = IMethods.BackToStart(botClient, update, cancellationToken);
+                                    _ = Methods.BackToStart(botClient, update, cancellationToken);
 
                                     return;
                                 }

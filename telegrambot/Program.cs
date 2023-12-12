@@ -13,7 +13,7 @@ using telegrambot;
 
 namespace tgbot
 {
-    internal class Program : IMethods
+    internal class Program
     {
         private static ITelegramBotClient? _botClient;
         private static ReceiverOptions? _receiverOptions;
@@ -38,13 +38,13 @@ namespace tgbot
 
             using var cts = new CancellationTokenSource();
 
-            _botClient.StartReceiving(UpdateHandler, IMethods.ErrorHandler, _receiverOptions, cts.Token);
+            _botClient.StartReceiving(UpdateHandler, Methods.ErrorHandler, _receiverOptions, cts.Token);
 
             var bot = await _botClient.GetMeAsync();
 
             Console.WriteLine($"{bot.FirstName} запущен!");
 
-            await Task.Delay(-1); // Устанавливаем бесконечную задержку, чтобы наш бот работал постоянно
+            await Task.Delay(-1);
         }
         private static async Task UpdateHandler(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
@@ -75,7 +75,7 @@ namespace tgbot
 
                                     if (message.Text == "/start")
                                     {
-                                        _ = IMethods.StartAsync(botClient, update, cancellationToken);
+                                        _ = Methods.StartAsync(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -88,9 +88,8 @@ namespace tgbot
 
                                             _clients.Find(x => x.Id == update.Message.From.Id).Phone = message.Contact.PhoneNumber;
                                             serializationOfClient.Serialization(_clients);
-                                            //SerializationOfClient.Serialization(_clients);
 
-                                            _ = IMethods.SendContactAsync(botClient, update, cancellationToken, _clients);
+                                            _ = Methods.SendContactAsync(botClient, update, cancellationToken, _clients);
 
                                             flag = false;
                                         }
@@ -126,13 +125,13 @@ namespace tgbot
                                         Client client = new() { Id = callbackQuery.From.Id, Username = chat.Username };
                                         _clients.Add(client);
 
-                                        _ = IMethods.CallRecButton(botClient, update, cancellationToken);
+                                        _ = Methods.CallRecButton(botClient, update, cancellationToken);
 
                                         return;
                                     }
                                 case "contactButton":
                                     {
-                                        _ = IMethods.SendContactInfoAsync(botClient, update, cancellationToken);
+                                        _ = Methods.SendContactInfoAsync(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -140,17 +139,17 @@ namespace tgbot
                                     {
                                         _clients.Find(x => x.Id == callbackQuery.From.Id).DateTime = DateTime.Now.AddDays(int.Parse(callbackQuery.Data.Split().Last()));
 
-                                        _ = IMethods.ChooseDayAsync(botClient, update, cancellationToken, _clients);
+                                        _ = Methods.ChooseDayAsync(botClient, update, cancellationToken, _clients);
 
                                         return;
                                     }
                                 case "backContacts":
                                     {
-                                        _ = IMethods.BackContacts(botClient, update, cancellationToken);
+                                        _ = Methods.BackContacts(botClient, update, cancellationToken);
 
                                         return;
                                     }
-                                case "backDays": //? alternative of backbutton from recording.cs
+                                case "backDays":
                                     {
                                         try
                                         {
@@ -158,7 +157,7 @@ namespace tgbot
                                         }
                                         catch (Exception) { }
 
-                                        _ = IMethods.BackContacts(botClient, update, cancellationToken);
+                                        _ = Methods.BackContacts(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -170,7 +169,7 @@ namespace tgbot
                                         }
                                         catch (Exception) { }
                                         
-                                        _ = IMethods.CallRecButton(botClient, update, cancellationToken);
+                                        _ = Methods.CallRecButton(botClient, update, cancellationToken);
 
                                         return;
                                     }
@@ -182,13 +181,13 @@ namespace tgbot
                                         }
                                         catch (Exception) { }
 
-                                        _ = IMethods.ChooseDayAsync(botClient, update, cancellationToken, _clients);
+                                        _ = Methods.ChooseDayAsync(botClient, update, cancellationToken, _clients);
 
                                         return;
                                     }
                                 case "time":
                                     {
-                                        _ = IMethods.ConfirmationQuest(botClient, update, cancellationToken, _clients);
+                                        _ = Methods.ConfirmationQuest(botClient, update, cancellationToken, _clients);
 
                                         return;
                                     }
@@ -196,9 +195,9 @@ namespace tgbot
                                     {
                                         flag = true;
 
-                                        _ = IMethods.Confirmation(botClient, update, cancellationToken, _clients);
+                                        _ = Methods.Confirmation(botClient, update, cancellationToken, _clients);
 
-                                        _ = IMethods.RequestContact(botClient, callbackQuery.Message.Chat.Id);
+                                        _ = Methods.RequestContact(botClient, callbackQuery.Message.Chat.Id);
                                         //456518653 - id Егора
                                         //1384604605 - id Матвея
                                         //5079754639 - id Витали

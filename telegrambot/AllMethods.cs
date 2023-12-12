@@ -7,20 +7,20 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace telegrambot
 {
-    interface IMethods
+    static class Methods
     {
         #region CLIENT'S PART
-        static async Task StartAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task StartAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var chat = update.Message.Chat;
 
             await botClient.SendTextMessageAsync(
                 chat.Id,
                 "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                replyMarkup: IKeyboards.mainMenu,
+                replyMarkup: Keyboards.mainMenu,
                 cancellationToken: cancellationToken);
         }
-        static async Task SendContactAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
+        public static async Task SendContactAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
         {
             var message = update.Message;
 
@@ -38,7 +38,7 @@ namespace telegrambot
                 cancellationToken: cancellationToken);
 
             await botClient.SendTextMessageAsync(
-                Admin.id, //Admin.id
+                Admin.id,
                 $"Привет, у тебя новый клиент! Его зовут @{update.Message.Chat.Username}," +
                 $" он записался на {day}." +
             $"{month} в {time}.",
@@ -52,7 +52,7 @@ namespace telegrambot
                 vCard: message.Contact.Vcard,
                 cancellationToken: cancellationToken);
         }
-        static async Task CallRecButton(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task CallRecButton(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -61,10 +61,10 @@ namespace telegrambot
                 chat.Id,
                 callbackQuery.Message.MessageId,
                 $"Выберите дату 💅🏼",
-                replyMarkup: IKeyboards.Day(),
+                replyMarkup: Keyboards.Day(),
                 cancellationToken: cancellationToken);
         }
-        static async Task SendContactInfoAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task SendContactInfoAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -73,10 +73,10 @@ namespace telegrambot
                 chat.Id,
                 callbackQuery.Message.MessageId,
                 "Номер телефона - +7-930-117-58-31.\ntg: @Vita_lulu",
-                replyMarkup: IKeyboards.backContacts,
+                replyMarkup: Keyboards.backContacts,
                 cancellationToken: cancellationToken);
         }
-        static async Task ChooseDayAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
+        public static async Task ChooseDayAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -85,10 +85,10 @@ namespace telegrambot
                 chat.Id,
                 callbackQuery.Message.MessageId,
                 $"Выберите время💅🏼",
-                replyMarkup: IKeyboards.Time(callbackQuery.From.Id, _clients),
+                replyMarkup: Keyboards.Time(callbackQuery.From.Id, _clients),
                 cancellationToken: cancellationToken);
         }
-        static async Task BackContacts(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task BackContacts(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -97,10 +97,10 @@ namespace telegrambot
                 chat.Id,
                 callbackQuery.Message.MessageId,
                 "Привет, это первый Ярославский телеграм-бот по записи на маникюр!",
-                replyMarkup: IKeyboards.mainMenu,
+                replyMarkup: Keyboards.mainMenu,
                 cancellationToken: cancellationToken);
         }
-        static async Task ConfirmationQuest(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
+        public static async Task ConfirmationQuest(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -119,10 +119,10 @@ namespace telegrambot
                 $"Вы хотите записаться на {day}.{month}" +
                 $" в {time} " +
                 "Все верно?",
-                replyMarkup: IKeyboards.confirmKeyboard,
+                replyMarkup: Keyboards.confirmKeyboard,
                 cancellationToken: cancellationToken);
         }
-        static async Task Confirmation(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
+        public static async Task Confirmation(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> _clients)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -138,12 +138,11 @@ namespace telegrambot
 
             _clients.Find(x => x.Id == callbackQuery.From.Id).Confirmation = true;
         }
-        static async Task<Message> RequestContact(ITelegramBotClient botClient, ChatId chatId)
+        public static async Task<Message> RequestContact(ITelegramBotClient botClient, ChatId chatId)
         {
             var contact = new ReplyKeyboardMarkup(KeyboardButton.WithRequestContact("Поделиться номером телефона"))
             {
                 ResizeKeyboard = true,
-                //contact.InputFieldPlaceholder = "smth",
                 OneTimeKeyboard = true
             };
 
@@ -155,7 +154,7 @@ namespace telegrambot
         }
         #endregion
         #region ADMIN'S PART
-        static async Task AdminStartUp(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task AdminStartUp(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var message = update.Message;
 
@@ -164,10 +163,10 @@ namespace telegrambot
             await botClient.SendTextMessageAsync(
                 chat.Id,
                 "Приветствую, Админ!",
-                replyMarkup: IKeyboards.adminMainMenu,
+                replyMarkup: Keyboards.adminMainMenu,
                 cancellationToken: cancellationToken);
         }
-        static async Task ExitRecs(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients)
+        public static async Task ExitRecs(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients)
         {
             string text = null;
             text += "Список записанных клиентов:\n";
@@ -188,10 +187,10 @@ namespace telegrambot
                   chat.Id,
                   callbackQuery.Message.MessageId,
                   text: text,
-                  replyMarkup: IKeyboards.backExistRecs,
+                  replyMarkup: Keyboards.backExistRecs,
                   cancellationToken: cancellationToken);
         }
-        static async Task EditRecs(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task EditRecs(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -200,10 +199,10 @@ namespace telegrambot
                   chat.Id,
                   callbackQuery.Message.MessageId,
                   $"Выберите клиента, чтобы отредактировать его запись",
-                  replyMarkup: IKeyboards.BackEditRecs(),
+                  replyMarkup: Keyboards.BackEditRecs(),
                   cancellationToken: cancellationToken);
         }
-        static async Task Redaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task Redaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -212,10 +211,10 @@ namespace telegrambot
                 chat.Id,
                 callbackQuery.Message.MessageId,
                 "Выберите, как хотите отредактировать:",
-                replyMarkup: IKeyboards.Editing(),
+                replyMarkup: Keyboards.Editing(),
                 cancellationToken: cancellationToken);
         }
-        static async Task RecordRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task RecordRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -224,10 +223,10 @@ namespace telegrambot
                   chat.Id,
                   callbackQuery.Message.MessageId,
                   $"Выберите дату💅🏼",
-                  replyMarkup: IKeyboards.Day(),
+                  replyMarkup: Keyboards.Day(),
                   cancellationToken: cancellationToken);
         }
-        static async Task DayRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, InlineKeyboardMarkup kb)
+        public static async Task DayRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, InlineKeyboardMarkup kb)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -239,7 +238,7 @@ namespace telegrambot
                   replyMarkup: kb,
                   cancellationToken: cancellationToken);
         }
-        static async Task TimeRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients, string idclient)
+        public static async Task TimeRedaction(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients, string idclient)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -258,11 +257,11 @@ namespace telegrambot
                 $"Вы хотите записаться на {day}.{month}" +
                 $" в {time} " +
                 "Все верно?",
-                replyMarkup: IKeyboards.confirmKeyboard,
+                replyMarkup: Keyboards.confirmKeyboard,
                 cancellationToken: cancellationToken);
 
         }
-        static async Task BackToStart(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task BackToStart(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -271,10 +270,10 @@ namespace telegrambot
                 chat.Id,
                 callbackQuery.Message.MessageId,
                 "Приветствую, Админ!",
-                replyMarkup: IKeyboards.adminMainMenu,
+                replyMarkup: Keyboards.adminMainMenu,
                 cancellationToken: cancellationToken);
         }
-        static async Task AdminConfirmation(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients, string idclient)
+        public static async Task AdminConfirmation(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, List<Client> clients, string idclient)
         {
             var callbackQuery = update.CallbackQuery;
             var chat = callbackQuery.Message.Chat;
@@ -289,7 +288,7 @@ namespace telegrambot
                 cancellationToken: cancellationToken);
         }
         #endregion
-        static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
+        public static Task ErrorHandler(ITelegramBotClient botClient, Exception error, CancellationToken cancellationToken)
         {
             var ErrorMessage = error switch
             {
