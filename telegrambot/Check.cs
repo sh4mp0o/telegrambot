@@ -23,23 +23,6 @@ namespace telegrambot
                 return $"true {DateTime.Today.AddDays(j).Day}.{DateTime.Today.Month}";
             }
             return "false";
-
-            //if (_date.DayOfWeek == DayOfWeek.Sunday || _date.DayOfWeek == DayOfWeek.Saturday)
-            //{
-            //    if (count < 3)
-            //    {
-            //        return $"true {DateTime.Today.AddDays(j).Day}.{DateTime.Today.Month}";
-            //    }
-            //    return "false";
-            //}
-            //else
-            //{
-            //    if (count <= 0)
-            //    {
-            //        return $"true  {DateTime.Today.AddDays(j).Day}.{DateTime.Today.Month}";
-            //    }
-            //    return "false";
-            //}
         }
         static public InlineKeyboardMarkup KeyboardDays()
         {
@@ -89,33 +72,6 @@ namespace telegrambot
             list.Add(new List<InlineKeyboardButton>());
             list[count].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backTime"));
             return new InlineKeyboardMarkup(list);
-
-            //if (_date.DayOfWeek == DayOfWeek.Sunday || _date.DayOfWeek == DayOfWeek.Saturday)
-            //{
-            //    for (int i = 0; i < 3; i++)
-            //    {
-            //        list.Add(new List<InlineKeyboardButton>());
-            //        if (KeyboardTime(_dateTime.AddHours(i*4).Hour.ToString(), _date).Split().First() == "true")
-            //        {
-            //            list[i].Add(InlineKeyboardButton.WithCallbackData($"{KeyboardTime(_dateTime.AddHours(i * 4).Hour.ToString(), _date).Split().Last()}:00", $"time {KeyboardTime(_dateTime.AddHours(i * 4).Hour.ToString(), _date).Split().Last()}:00"));
-            //        }
-            //    }
-            //    list.Add(new List<InlineKeyboardButton>());
-            //    list[3].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backTime"));
-            //    return new InlineKeyboardMarkup(list);
-            //}
-            //else
-            //{
-            //    list.Add(new List<InlineKeyboardButton>());
-            //    if (KeyboardTime("18:00", _date).Split().First() == "true")
-            //    {
-            //        list[0].Add(InlineKeyboardButton.WithCallbackData($"{KeyboardTime("18:00", _date).Split().Last()}", $"time {KeyboardTime("18:00", _date).Split().Last()}"));
-            //    }
-            //    list.Add(new List<InlineKeyboardButton>());
-            //    list[1].Add(InlineKeyboardButton.WithCallbackData("Назад ◀️", "backTime"));
-            //    return new InlineKeyboardMarkup(list);
-            //}
-
         }
         static public string KeyboardTime(string time,DateTime date)
         {
