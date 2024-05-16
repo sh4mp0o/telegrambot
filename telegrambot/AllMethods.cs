@@ -33,7 +33,7 @@ namespace telegrambot
             await botClient.SendTextMessageAsync(
                 chat.Id,
                 $"Вы записаны на {day}.{month} в {time}!" +
-                "\nНомер телефона - +7-930-117-58-31." +
+                "\nНомер телефона - +7-000-000-00-00." +
                 "\nЧтобы перезапустить бота, напишите - /start.",
                 cancellationToken: cancellationToken);
 
@@ -72,7 +72,7 @@ namespace telegrambot
             await botClient.EditMessageTextAsync(
                 chat.Id,
                 callbackQuery.Message.MessageId,
-                "Номер телефона - +7-930-117-58-31.\ntg: @Vita_lulu",
+                "Номер телефона - +7-000-000-00-00.\ntg: @0000",
                 replyMarkup: Keyboards.backContacts,
                 cancellationToken: cancellationToken);
         }
