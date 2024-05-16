@@ -23,7 +23,7 @@ namespace tgbot
 
         static async Task Main()
         {
-            _botClient = new TelegramBotClient("6326545310:AAHr_k9p1tO238D0xszOy84VPww2kBklUgc"); // TOKEN HERE
+            _botClient = new TelegramBotClient("0000000000000000000000000000000000000000"); // TOKEN HERE
             _clients = serializationOfClient.Deserialization();
 
             _receiverOptions = new ReceiverOptions // bot settings
